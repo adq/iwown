@@ -5,9 +5,9 @@ import argparse
 SERV_IWOWN = '0000ff20-0000-1000-8000-00805f9b34fb'
 SERV_DFU = '00001530-1212-efde-1523-785feabcd123'
 
-CHAR_NEW_WRITE = '0000ff21-0000-1000-8000-00805f9b34fb'
-CHAR_NEW_NOTIFY = '0000ff22-0000-1000-8000-00805f9b34fb'
-CHAR_NEW_INDICATE = '0000ff23-0000-1000-8000-00805f9b34fb'
+CHAR_WRITE = '0000ff21-0000-1000-8000-00805f9b34fb'
+CHAR_NOTIFY = '0000ff22-0000-1000-8000-00805f9b34fb'
+CHAR_INDICATE = '0000ff23-0000-1000-8000-00805f9b34fb'
 
 CHAR_DFU_CONTROL = '00001531-1212-efde-1523-785feabcd123'
 CHAR_DFU_DATA = '00001532-1212-efde-1523-785feabcd123'
@@ -37,9 +37,9 @@ class IWownDevice(gatt.Device):
             self.iwown_indicate = None
             for c in self.iwown.characteristics:
                 # print("CHARACTERISTIC " + c.uuid)
-                if c.uuid == CHAR_NEW_WRITE:
+                if c.uuid == CHAR_WRITE:
                     self.iwown_write = c
-                elif c.uuid == CHAR_NEW_INDICATE:
+                elif c.uuid == CHAR_INDICATE:
                     self.iwown_indicate = c
                     self.iwown_indicate.enable_notifications()
 
@@ -57,12 +57,12 @@ class IWownDevice(gatt.Device):
 
     @staticmethod
     def makeHeader(a, b):
-        return ((a & 15) << 4) | (b & 15)
+        return ((a & 0xf) << 4) | (b & 0xf)
 
     def characteristic_value_updated(self, characteristic, value):
         # print("characteristic_value_updated {} {}".format(characteristic.uuid, value))
 
-        if characteristic.uuid == CHAR_NEW_INDICATE:
+        if characteristic.uuid == CHAR_INDICATE:
             # accumulate data until we get desired size
             if self.dataacc is None:
                 self.datatag = value[2]
