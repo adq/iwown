@@ -113,7 +113,7 @@ class IWownDevice(gatt.Device):
 parser = argparse.ArgumentParser(description='IWOWN command tool')
 parser.add_argument('--usbhost', default='hci0', help='USB host to use')
 parser.add_argument('action', help='what to do!', choices=["getfwinfo", 'getpower', 'dfumode'])
-parser.add_argument('mac', default='ff:ff:ff:ff:ff:ff', help='mac address')
+parser.add_argument('mac', help='mac address')
 args = parser.parse_args()
 
 manager = gatt.DeviceManager(adapter_name=args.usbhost)
