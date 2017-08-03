@@ -25,9 +25,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.979899"
-     inkscape:cx="588.98234"
-     inkscape:cy="701.55993"
+     inkscape:zoom="1.4"
+     inkscape:cx="491.63804"
+     inkscape:cy="803.40054"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -543,14 +543,14 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:3.250875px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.08127187px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="41.538914"
+       x="37.39278"
        y="70.894226"
        id="text4845-49-0"><tspan
          sodipodi:role="line"
          id="tspan4843-20-6"
-         x="41.538914"
+         x="37.39278"
          y="70.894226"
-         style="stroke-width:0.08127187px">GPIO30 - OLED ?</tspan></text>
+         style="stroke-width:0.08127187px">GPIO30 - OLED POWER</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:3.250875px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.08127187px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
@@ -587,58 +587,58 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:3.250875px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.08127187px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="62.817234"
+       x="31.641853"
        y="92.518753"
        id="text4845-49-17"><tspan
          sodipodi:role="line"
          id="tspan4843-20-7"
-         x="62.817234"
+         x="31.641853"
          y="92.518753"
-         style="stroke-width:0.08127187px">GPIO03</tspan></text>
+         style="stroke-width:0.08127187px">GPIO03 -TOUCH SENSOR 0</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:3.250875px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.08127187px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="62.739456"
+       x="30.392614"
        y="97.924881"
        id="text4845-49-11"><tspan
          sodipodi:role="line"
          id="tspan4843-20-59"
-         x="62.739456"
+         x="30.392614"
          y="97.924881"
-         style="stroke-width:0.08127187px">GPIO04</tspan></text>
+         style="stroke-width:0.08127187px">GPIO04 - TOUCH SENSOR 1</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:3.250875px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.08127187px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="62.841045"
+       x="54.358292"
        y="103.33102"
        id="text4845-49-7"><tspan
          sodipodi:role="line"
-         id="tspan4843-20-76"
-         x="62.841045"
+         x="54.358292"
          y="103.33102"
-         style="stroke-width:0.08127187px">GPIO05</tspan></text>
+         style="stroke-width:0.08127187px"
+         id="tspan4641">GPIO05 - ???</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:3.250875px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.08127187px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="62.761677"
+       x="27.567146"
        y="108.73714"
        id="text4845-49-73"><tspan
          sodipodi:role="line"
          id="tspan4843-20-65"
-         x="62.761677"
+         x="27.567146"
          y="108.73714"
-         style="stroke-width:0.08127187px">GPIO06</tspan></text>
+         style="stroke-width:0.08127187px">GPIO06 - AIN7 POWER LEVEL</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:3.250875px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.08127187px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="62.834694"
+       x="41.278603"
        y="114.14326"
        id="text4845-49-6"><tspan
          sodipodi:role="line"
-         id="tspan4843-20-3"
-         x="62.834694"
+         x="41.278603"
          y="114.14326"
-         style="stroke-width:0.08127187px">GPIO07</tspan></text>
+         style="stroke-width:0.08127187px"
+         id="tspan4645">GPIO07 - IRQ INPUT?</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:3.250875px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.08127187px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
@@ -647,10 +647,10 @@
        id="text4845-9"
        transform="rotate(-90)"><tspan
          sodipodi:role="line"
-         id="tspan4843-48"
          x="-49.375069"
          y="85.631195"
-         style="stroke-width:0.08127187px">GPIO29</tspan></text>
+         style="stroke-width:0.08127187px"
+         id="tspan4651">GPIO29 - ???</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:3.250875px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.08127187px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
@@ -674,7 +674,7 @@
          id="tspan4843-7-3"
          x="-49.375069"
          y="96.449944"
-         style="stroke-width:0.08127187px">GPIO27 - AIN1</tspan><tspan
+         style="stroke-width:0.08127187px">GPIO27</tspan><tspan
          sodipodi:role="line"
          x="-49.375069"
          y="100.51353"
@@ -703,7 +703,7 @@
          x="-49.375069"
          y="107.29327"
          style="stroke-width:0.08127187px"
-         id="tspan4642">GPIO25 - OLED RES# ?</tspan></text>
+         id="tspan4642">GPIO25 - OLED RES#</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:3.250875px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.08127187px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
@@ -715,7 +715,7 @@
          id="tspan4843-8-0"
          x="-49.375069"
          y="112.68204"
-         style="stroke-width:0.08127187px">GPIO24 - OLED SCL ?</tspan></text>
+         style="stroke-width:0.08127187px">GPIO24 - OLED SCL</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:3.250875px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.08127187px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
@@ -727,7 +727,7 @@
          id="tspan4843-88-6"
          x="-49.375069"
          y="117.70888"
-         style="stroke-width:0.08127187px">GPIO23 - OLED SDA ?</tspan></text>
+         style="stroke-width:0.08127187px">GPIO23 - OLED SDA</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:3.250875px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.08127187px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
@@ -739,7 +739,7 @@
          id="tspan4843-1-8"
          x="-49.668716"
          y="123.50079"
-         style="stroke-width:0.08127187px">GPIO22</tspan></text>
+         style="stroke-width:0.08127187px">GPIO22 - LED</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:3.250875px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.08127187px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
@@ -856,27 +856,27 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:3.250875px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.08127187px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="-160.10258"
+       x="-178.80464"
        y="112.4389"
        id="text4845-7-5-1"
        transform="rotate(-90)"><tspan
          sodipodi:role="line"
-         id="tspan4843-8-0-2"
-         x="-160.10258"
+         x="-178.80464"
          y="112.4389"
-         style="stroke-width:0.08127187px">GPIO12 - EMPTYPAD</tspan></text>
+         style="stroke-width:0.08127187px"
+         id="tspan4647">GPIO12 - ACCELEROMETER SCL</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:3.250875px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.08127187px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="-160.10258"
+       x="-179.37926"
        y="117.46571"
        id="text4845-6-9-8"
        transform="rotate(-90)"><tspan
          sodipodi:role="line"
          id="tspan4843-88-6-9"
-         x="-160.10258"
+         x="-179.37926"
          y="117.46571"
-         style="stroke-width:0.08127187px">GPIO13 - EMPTYPAD</tspan></text>
+         style="stroke-width:0.08127187px">GPIO13 - ACCELEROMETER SDA</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:3.250875px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.08127187px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
@@ -943,16 +943,5 @@
        cx="80.849106"
        cy="55.20863"
        r="1.0394346" />
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:5.10837793px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.12770945px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="231.66978"
-       y="64.353714"
-       id="text5606"><tspan
-         sodipodi:role="line"
-         id="tspan5604"
-         x="231.66978"
-         y="64.353714"
-         style="stroke-width:0.12770945px">LIS3DH -- i2c mode</tspan></text>
   </g>
 </svg>
