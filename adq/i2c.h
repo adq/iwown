@@ -16,6 +16,7 @@
 #define I2C_H 1
 
 #include <stdbool.h>
+#include <stdint.h>
 
 typedef struct {
   int pinSCL;
@@ -24,12 +25,7 @@ typedef struct {
   int delay;
 } i2cBus;
 
-#define i2cInit(bus, pinSCL, pinSDA, bitrate) \
-  bus->pinSCL = pinSCL; \
-  bus->pinSDA = pinSDA; \
-  bus->started = false; \
-  bus->delay = 4000000/bitrate; \
-
+void i2cInit(i2cBus *inf, uint32_t pinSCL, uint32_t pinSDA, uint32_t bitrate);
 void i2cWrite(i2cBus *inf, unsigned char address, int nBytes, const unsigned char *data, bool sendStop);
 void i2cRead(i2cBus *inf, unsigned char address, int nBytes, unsigned char *data, bool sendStop);
 
