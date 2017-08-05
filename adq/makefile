@@ -42,7 +42,8 @@ C_SOURCE_FILES += \
 ../nRF51_SDK_7.2.0_cf547b5/components/drivers_nrf/hal/nrf_delay.c \
 ../nRF51_SDK_7.2.0_cf547b5/components/libraries/util/app_error.c \
 main.c \
-i2c.c
+i2c.c \
+led.c
 
 #assembly files common to all targets
 ASM_SOURCE_FILES  = ../nRF51_SDK_7.2.0_cf547b5/components/toolchain/gcc/gcc_startup_nrf51.s
