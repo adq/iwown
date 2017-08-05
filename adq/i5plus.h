@@ -27,6 +27,7 @@
 #define GPIO_EEPROM_SCL 8
 
 #define GPIO_USB_POWER 5
+
 #define GPIO_TOUCH1 4
 #define GPIO_TOUCH0 3
 

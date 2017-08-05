@@ -171,6 +171,7 @@ genbin:
 genhex:
 	@echo Preparing: $(OUTPUT_FILENAME).hex
 	$(NO_ECHO)$(OBJCOPY) -O ihex $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).out $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).hex
+	./hexmerge _build/adq.hex ../nRF51_SDK_7.2.0_cf547b5/components/softdevice/s110/s110_nrf51822_7.3.0_softdevice.hex -o _build/adq_softdevice.hex
 
 echosize:
 	-@echo ""
