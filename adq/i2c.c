@@ -119,7 +119,10 @@ void i2cInit(i2cBus *inf, uint32_t pinSCL, uint32_t pinSDA, uint32_t bitrate) {
   inf->delay = 4000000/bitrate;
   inf->started = false;
 
-  // FIXME: setup for i2c pins!
+  nrf_gpio_cfg_output(pinSCL);
+  write_pin(inf->pinSCL, 0);
+  nrf_gpio_cfg_output(pinSDA);
+  write_pin(inf->pinSDA, 0);
 }
 
 void i2cWrite(i2cBus *inf, unsigned char address, int nBytes, const unsigned char *data, bool sendStop) {
