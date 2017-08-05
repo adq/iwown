@@ -17,6 +17,8 @@
 #include "i5plus.h"
 #include "i2c.h"
 #include "led.h"
+#include "motor.h"
+
 
 i2cBus oled;
 i2cBus accelerometer;
@@ -25,6 +27,7 @@ i2cBus eeprom;
 int main(void)
 {
     ledInit();
+    motorInit();
     i2cInit(&oled, GPIO_OLED_SCL, GPIO_OLED_SDA, I2C_BITRATE);
     i2cInit(&accelerometer, GPIO_ACCEL_SCL, GPIO_ACCEL_SDA, I2C_BITRATE);
     i2cInit(&eeprom, GPIO_EEPROM_SCL, GPIO_EEPROM_SDA, I2C_BITRATE);
