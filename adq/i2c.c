@@ -12,7 +12,9 @@
  * ----------------------------------------------------------------------------
  */
 
- #include "i2c.h"
+#include "i2c.h"
+#include "nrf_gpio.h"
+#include "app_error.h"
 
 const int I2C_TIMEOUT = 100000;
 
@@ -21,62 +23,72 @@ static void dly(i2cBus *inf) {
   for (i=inf->delay;i>0;i--);
 }
 
+static void write_pin(uint32_t pin, uint32_t value) {
+  nrf_gpio_pin_dir_set(pin, NRF_GPIO_PIN_DIR_OUTPUT);
+  nrf_gpio_pin_write(pin, value);
+}
+
+static uint32_t read_pin(uint32_t pin) {
+  nrf_gpio_pin_dir_set(pin, NRF_GPIO_PIN_DIR_INPUT);
+  return nrf_gpio_pin_read(pin);
+}
+
 static void i2c_start(i2cBus *inf) {
   if (inf->started) {
     // reset
-    jshPinSetValue(inf->pinSDA, 1);
+    write_pin(inf->pinSDA, 1);
     dly(inf);
-    jshPinSetValue(inf->pinSCL, 1);
+    write_pin(inf->pinSCL, 1);
     int timeout = I2C_TIMEOUT;
-    while (!jshPinGetValue(inf->pinSCL) && --timeout); // clock stretch
-    if (!timeout) err("Timeout (start)");
+    while (!read_pin(inf->pinSCL) && --timeout); // clock stretch
+    if (!timeout) APP_ERROR_HANDLER(0);
     dly(inf);
   }
-  if (!jshPinGetValue(inf->pinSDA)) err("Arbitration (start)");
-  jshPinSetValue(inf->pinSDA, 0);
+  if (!read_pin(inf->pinSDA)) APP_ERROR_HANDLER(0);
+  write_pin(inf->pinSDA, 0);
   dly(inf);
-  jshPinSetValue(inf->pinSCL, 0);
+  write_pin(inf->pinSCL, 0);
   dly(inf);
   inf->started = true;
 }
 
 static void i2c_stop(i2cBus *inf) {
-  jshPinSetValue(inf->pinSDA, 0);
+  write_pin(inf->pinSDA, 0);
   dly(inf);
-  jshPinSetValue(inf->pinSCL, 1);
+  write_pin(inf->pinSCL, 1);
   int timeout = I2C_TIMEOUT;
-  while (!jshPinGetValue(inf->pinSCL) && --timeout); // clock stretch
-  if (!timeout) err("Timeout (stop)");
+  while (!read_pin(inf->pinSCL) && --timeout); // clock stretch
+  if (!timeout) APP_ERROR_HANDLER(0);
   dly(inf);
-  jshPinSetValue(inf->pinSDA, 1);
+  write_pin(inf->pinSDA, 1);
   dly(inf);
-  if (!jshPinGetValue(inf->pinSDA)) err("Arbitration (stop)");
+  if (!read_pin(inf->pinSDA)) APP_ERROR_HANDLER(0);
   dly(inf);
   inf->started = false;
 }
 
 static void i2c_wr_bit(i2cBus *inf, bool b) {
-  jshPinSetValue(inf->pinSDA, b);
+  write_pin(inf->pinSDA, b);
   dly(inf);
-  jshPinSetValue(inf->pinSCL, 1);
+  write_pin(inf->pinSCL, 1);
   dly(inf);
   int timeout = I2C_TIMEOUT;
-  while (!jshPinGetValue(inf->pinSCL) && --timeout); // clock stretch
-  if (!timeout) err("Timeout (wr)");
-  jshPinSetValue(inf->pinSCL, 0);
-  jshPinSetValue(inf->pinSDA, 1); // stop forcing SDA (needed?)
+  while (!read_pin(inf->pinSCL) && --timeout); // clock stretch
+  if (!timeout) APP_ERROR_HANDLER(0);
+  write_pin(inf->pinSCL, 0);
+  write_pin(inf->pinSDA, 1); // stop forcing SDA (needed?)
 }
 
 static bool i2c_rd_bit(i2cBus *inf) {
-  jshPinSetValue(inf->pinSDA, 1); // stop forcing SDA
+  write_pin(inf->pinSDA, 1); // stop forcing SDA
   dly(inf);
-  jshPinSetValue(inf->pinSCL, 1); // stop forcing SDA
+  write_pin(inf->pinSCL, 1); // stop forcing SDA
   int timeout = I2C_TIMEOUT;
-  while (!jshPinGetValue(inf->pinSCL) && --timeout); // clock stretch
-  if (!timeout) err("Timeout (rd)");
+  while (!read_pin(inf->pinSCL) && --timeout); // clock stretch
+  if (!timeout) APP_ERROR_HANDLER(0);
   dly(inf);
-  bool b = jshPinGetValue(inf->pinSDA);
-  jshPinSetValue(inf->pinSCL, 0);
+  bool b = read_pin(inf->pinSDA);
+  write_pin(inf->pinSCL, 0);
   return b;
 }
 
@@ -101,9 +113,7 @@ static uint8_t i2c_rd(i2cBus *inf, bool nack) {
 
 // ----------------------------------------------------------------------------
 
-void jsi2cWrite(i2cBus *inf, unsigned char address, int nBytes, const unsigned char *data, bool sendStop) {
-  if (inf->pinSCL==PIN_UNDEFINED || inf->pinSDA==PIN_UNDEFINED)
-    return;
+void i2cWrite(i2cBus *inf, unsigned char address, int nBytes, const unsigned char *data, bool sendStop) {
   i2c_start(inf);
   i2c_wr(inf, address<<1);
   int i;
@@ -112,9 +122,7 @@ void jsi2cWrite(i2cBus *inf, unsigned char address, int nBytes, const unsigned c
   if (sendStop) i2c_stop(inf);
 }
 
-void jsi2cRead(i2cBus *inf, unsigned char address, int nBytes, unsigned char *data, bool sendStop) {
-  if (inf->pinSCL==PIN_UNDEFINED || inf->pinSDA==PIN_UNDEFINED)
-    return;
+void i2cRead(i2cBus *inf, unsigned char address, int nBytes, unsigned char *data, bool sendStop) {
   i2c_start(inf);
   i2c_wr(inf, 1|(address<<1));
   int i;

@@ -39,9 +39,10 @@ remduplicates = $(strip $(if $1,$(firstword $1) $(call remduplicates,$(filter-ou
 #source common to all targets
 C_SOURCE_FILES += \
 ../nRF51_SDK_7.2.0_cf547b5/components/toolchain/system_nrf51.c \
-main.c \
-i2c.c \
 ../nRF51_SDK_7.2.0_cf547b5/components/drivers_nrf/hal/nrf_delay.c \
+../nRF51_SDK_7.2.0_cf547b5/components/libraries/util/app_error.c \
+main.c \
+i2c.c
 
 #assembly files common to all targets
 ASM_SOURCE_FILES  = ../nRF51_SDK_7.2.0_cf547b5/components/toolchain/gcc/gcc_startup_nrf51.s
@@ -49,6 +50,7 @@ ASM_SOURCE_FILES  = ../nRF51_SDK_7.2.0_cf547b5/components/toolchain/gcc/gcc_star
 #includes common to all targets
 INC_PATHS += -I../nRF51_SDK_7.2.0_cf547b5/components/toolchain/gcc
 INC_PATHS += -I../nRF51_SDK_7.2.0_cf547b5/components/toolchain
+INC_PATHS += -I../nRF51_SDK_7.2.0_cf547b5/components/libraries/util
 INC_PATHS += -I../nRF51_SDK_7.2.0_cf547b5/components/drivers_nrf/hal
 INC_PATHS += -I../nRF51_SDK_7.2.0_cf547b5/components/softdevice/s110/headers
 
