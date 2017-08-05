@@ -23,7 +23,8 @@
 #include <stdint.h>
 #include "nrf_delay.h"
 #include "nrf_gpio.h"
-#include "boards.h"
+#include "i5plus.h"
+#include "i2c.h"
 
 const uint8_t leds_list[LEDS_NUMBER] = LEDS_LIST;
 

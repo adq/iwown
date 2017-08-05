@@ -1,12 +1,12 @@
-PROJECT_NAME := blinky_s110_pca10031
+PROJECT_NAME := adq
 
 export OUTPUT_FILENAME
 #MAKEFILE_NAME := $(CURDIR)/$(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))
 MAKEFILE_NAME := $(MAKEFILE_LIST)
-MAKEFILE_DIR := $(dir $(MAKEFILE_NAME) ) 
+MAKEFILE_DIR := $(dir $(MAKEFILE_NAME) )
 
 
-TEMPLATE_PATH = ../components/toolchain/gcc
+TEMPLATE_PATH = ../nRF51_SDK_7.2.0_cf547b5/components/toolchain/gcc
 ifeq ($(OS),Windows_NT)
 include $(TEMPLATE_PATH)/Makefile.windows
 else
@@ -18,7 +18,7 @@ RM := rm -rf
 
 #echo suspend
 ifeq ("$(VERBOSE)","1")
-NO_ECHO := 
+NO_ECHO :=
 else
 NO_ECHO := @
 endif
@@ -38,18 +38,19 @@ remduplicates = $(strip $(if $1,$(firstword $1) $(call remduplicates,$(filter-ou
 
 #source common to all targets
 C_SOURCE_FILES += \
-../components/toolchain/system_nrf51.c \
+../nRF51_SDK_7.2.0_cf547b5/components/toolchain/system_nrf51.c \
 main.c \
-../components/drivers_nrf/hal/nrf_delay.c \
+i2c.c \
+../nRF51_SDK_7.2.0_cf547b5/components/drivers_nrf/hal/nrf_delay.c \
 
 #assembly files common to all targets
-ASM_SOURCE_FILES  = ../components/toolchain/gcc/gcc_startup_nrf51.s
+ASM_SOURCE_FILES  = ../nRF51_SDK_7.2.0_cf547b5/components/toolchain/gcc/gcc_startup_nrf51.s
 
 #includes common to all targets
-INC_PATHS += -I../components/toolchain/gcc
-INC_PATHS += -I../components/toolchain
-INC_PATHS += -I../components/drivers_nrf/hal
-INC_PATHS += -I../components/softdevice/s110/headers
+INC_PATHS += -I../nRF51_SDK_7.2.0_cf547b5/components/toolchain/gcc
+INC_PATHS += -I../nRF51_SDK_7.2.0_cf547b5/components/toolchain
+INC_PATHS += -I../nRF51_SDK_7.2.0_cf547b5/components/drivers_nrf/hal
+INC_PATHS += -I../nRF51_SDK_7.2.0_cf547b5/components/softdevice/s110/headers
 
 OBJECT_DIRECTORY = _build
 LISTING_DIRECTORY = $(OBJECT_DIRECTORY)
@@ -91,17 +92,17 @@ ASMFLAGS += -DBLE_STACK_SUPPORT_REQD
 ASMFLAGS += -DS110
 ASMFLAGS += -DSOFTDEVICE_PRESENT
 #default target - first one defined
-default: clean nrf51422_xxac
+default: clean adq
 
 #building all targets
 all: clean
 	$(NO_ECHO)$(MAKE) -f $(MAKEFILE_NAME) -C $(MAKEFILE_DIR) -e cleanobj
-	$(NO_ECHO)$(MAKE) -f $(MAKEFILE_NAME) -C $(MAKEFILE_DIR) -e nrf51422_xxac 
+	$(NO_ECHO)$(MAKE) -f $(MAKEFILE_NAME) -C $(MAKEFILE_DIR) -e adq
 
 #target for printing all targets
 help:
 	@echo following targets are available:
-	@echo 	nrf51422_xxac
+	@echo 	adq
 
 
 C_SOURCE_FILE_NAMES = $(notdir $(C_SOURCE_FILES))
@@ -117,9 +118,9 @@ vpath %.s $(ASM_PATHS)
 
 OBJECTS = $(C_OBJECTS) $(ASM_OBJECTS)
 
-nrf51422_xxac: OUTPUT_FILENAME := nrf51422_xxac
-nrf51422_xxac: LINKER_SCRIPT=../components/toolchain/gcc/gcc_nrf51_s110_xxac.ld
-nrf51422_xxac: $(BUILD_DIRECTORIES) $(OBJECTS)
+adq: OUTPUT_FILENAME := adq
+adq: LINKER_SCRIPT=../nRF51_SDK_7.2.0_cf547b5/components/toolchain/gcc/gcc_nrf51_s110_xxac.ld
+adq: $(BUILD_DIRECTORIES) $(OBJECTS)
 	@echo Linking target: $(OUTPUT_FILENAME).out
 	$(NO_ECHO)$(CC) $(LDFLAGS) $(OBJECTS) $(LIBS) -o $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).out
 	$(NO_ECHO)$(MAKE) -f $(MAKEFILE_NAME) -C $(MAKEFILE_DIR) -e finalize
@@ -163,7 +164,7 @@ genbin:
 	$(NO_ECHO)$(OBJCOPY) -O binary $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).out $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).bin
 
 ## Create binary .hex file from the .out file
-genhex: 
+genhex:
 	@echo Preparing: $(OUTPUT_FILENAME).hex
 	$(NO_ECHO)$(OBJCOPY) -O ihex $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).out $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).hex
 
