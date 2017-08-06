@@ -27,6 +27,8 @@
 #include "simple_uart.h"
 
 
+// NOTE: get into DFU bootloader: NRF_POWER->GPREGRET == BOOTLOADER_DFU_START  then soft reset
+
 twi_master_config_t accelerometer = {TWI_Pin_SCL:0, TWI_Pin_SDA:30};
 
 static void softdevice_init(void)
