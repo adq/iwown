@@ -3,7 +3,7 @@
 #include "i5plus.h"
 #include "softdevice_handler.h"
 #include "ble.h"
-#include "ble_hci.h"
+#include "ble_dis.h"
 #include "ble_srv_common.h"
 #include "ble_advdata.h"
 #include "ble_conn_params.h"
@@ -79,6 +79,29 @@ void advertising_start(void)
     adv_params.timeout     = APP_ADV_TIMEOUT_IN_SECONDS;
 
     err_code = sd_ble_gap_adv_start(&adv_params);
+    APP_ERROR_CHECK(err_code);
+}
+
+void dis_init(void)
+{
+    uint32_t         err_code;
+    ble_dis_init_t   dis_init_obj;
+    ble_dis_pnp_id_t pnp_id;
+
+    pnp_id.vendor_id_source = PNP_ID_VENDOR_ID_SOURCE;
+    pnp_id.vendor_id        = PNP_ID_VENDOR_ID;
+    pnp_id.product_id       = PNP_ID_PRODUCT_ID;
+    pnp_id.product_version  = PNP_ID_PRODUCT_VERSION;
+
+    memset(&dis_init_obj, 0, sizeof(dis_init_obj));
+
+    ble_srv_ascii_to_utf8(&dis_init_obj.manufact_name_str, MANUFACTURER_NAME);
+    dis_init_obj.p_pnp_id = &pnp_id;
+
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&dis_init_obj.dis_attr_md.read_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&dis_init_obj.dis_attr_md.write_perm);
+
+    err_code = ble_dis_init(&dis_init_obj);
     APP_ERROR_CHECK(err_code);
 }
 

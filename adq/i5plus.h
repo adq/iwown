@@ -41,7 +41,13 @@
 #define SCHED_MAX_EVENT_DATA_SIZE       sizeof(app_timer_event_t)                   /**< Maximum size of scheduler events. Note that scheduler BLE stack events do not contain any data, as the events are being pulled from the stack in the event handler. */
 #define SCHED_QUEUE_SIZE                29                                          /**< Maximum number of events in the scheduler queue. */
 
+#define MANUFACTURER_NAME "ADQ"
 #define DEVICE_NAME "ADQ WOZ HERE"
+
+#define PNP_ID_VENDOR_ID_SOURCE          0x02                                           /**< Vendor ID Source. */
+#define PNP_ID_VENDOR_ID                 0x1915                                         /**< Vendor ID. */
+#define PNP_ID_PRODUCT_ID                0xEEEE                                         /**< Product ID. */
+#define PNP_ID_PRODUCT_VERSION           0x0001                                         /**< Product Version. */
 
 #define MIN_CONN_INTERVAL               MSEC_TO_UNITS(500, UNIT_1_25_MS)            /**< Minimum acceptable connection interval (0.5 seconds). */
 #define MAX_CONN_INTERVAL               MSEC_TO_UNITS(1000, UNIT_1_25_MS)           /**< Maximum acceptable connection interval (1 second). */

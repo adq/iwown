@@ -68,6 +68,7 @@ int main(void)
     scheduler_init();
     gap_params_init();
     advertising_init();
+    dis_init();
 
     // motorInit();
     // i2cInit(&oled, GPIO_OLED_SCL, GPIO_OLED_SDA, I2C_BITRATE);
