@@ -4,15 +4,17 @@
 #include "softdevice_handler.h"
 #include "ble.h"
 #include "ble_dis.h"
+#include "ble_bas.h"
 #include "ble_srv_common.h"
 #include "ble_advdata.h"
 #include "ble_conn_params.h"
 #include "nrf_gpio.h"
 
 static uint16_t                         m_conn_handle = BLE_CONN_HANDLE_INVALID;    /**< Handle of the current connection. */
+static ble_bas_t                        m_bas;                                     /**< Structure used to identify the battery service. */
 
 
-void gap_params_init(void)
+static void gap_params_init(void)
 {
     uint32_t                err_code;
     ble_gap_conn_params_t   gap_conn_params;
@@ -40,7 +42,7 @@ void gap_params_init(void)
     APP_ERROR_CHECK(err_code);
 }
 
-void advertising_init(void)
+static void advertising_init(void)
 {
     uint32_t      err_code;
     ble_advdata_t advdata;
@@ -82,7 +84,7 @@ void advertising_start(void)
     APP_ERROR_CHECK(err_code);
 }
 
-void dis_init(void)
+static void dis_init(void)
 {
     uint32_t         err_code;
     ble_dis_init_t   dis_init_obj;
@@ -104,6 +106,32 @@ void dis_init(void)
     err_code = ble_dis_init(&dis_init_obj);
     APP_ERROR_CHECK(err_code);
 }
+
+
+static void bas_init(void)
+{
+    uint32_t         err_code;
+    ble_bas_init_t  bas_init;
+
+    // Initialize Battery Service.
+    memset(&bas_init, 0, sizeof(bas_init));
+
+    // Here the sec level for the Battery Service can be changed/increased.
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&bas_init.battery_level_char_attr_md.cccd_write_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&bas_init.battery_level_char_attr_md.read_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&bas_init.battery_level_char_attr_md.write_perm);
+
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&bas_init.battery_level_report_read_perm);
+
+    bas_init.evt_handler          = NULL;
+    bas_init.support_notification = true;
+    bas_init.p_report_ref         = NULL;
+    bas_init.initial_batt_level   = 100;
+
+    err_code = ble_bas_init(&m_bas, &bas_init);
+    APP_ERROR_CHECK(err_code);
+}
+
 
 static void on_ble_evt(ble_evt_t * p_ble_evt)
 {
@@ -170,4 +198,9 @@ void ble_stack_init(void)
     // Register with the SoftDevice handler module for BLE events.
     err_code = softdevice_sys_evt_handler_set(sys_evt_dispatch);
     APP_ERROR_CHECK(err_code);
+
+    gap_params_init();
+    advertising_init();
+    dis_init();
+    bas_init();
 }
