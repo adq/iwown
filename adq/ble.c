@@ -177,13 +177,6 @@ void ble_stack_init(void)
 {
     uint32_t err_code;
 
-    // Initialize the SoftDevice handler module.
-    #ifdef MICROBIT
-    SOFTDEVICE_HANDLER_INIT(NRF_CLOCK_LFCLKSRC_SYNTH_250_PPM, true);
-    #else
-    SOFTDEVICE_HANDLER_INIT(NRF_CLOCK_LFCLKSRC_XTAL_20_PPM, true);
-    #endif
-
     // Enable BLE stack
     ble_enable_params_t ble_enable_params;
     memset(&ble_enable_params, 0, sizeof(ble_enable_params));
@@ -199,6 +192,7 @@ void ble_stack_init(void)
     err_code = softdevice_sys_evt_handler_set(sys_evt_dispatch);
     APP_ERROR_CHECK(err_code);
 
+    // init services
     gap_params_init();
     advertising_init();
     dis_init();

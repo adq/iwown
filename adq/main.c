@@ -29,6 +29,15 @@
 
 twi_master_config_t accelerometer = {TWI_Pin_SCL:0, TWI_Pin_SDA:30};
 
+static void softdevice_init(void)
+{
+#ifdef MICROBIT
+    SOFTDEVICE_HANDLER_INIT(NRF_CLOCK_LFCLKSRC_SYNTH_250_PPM, true);
+#else
+    SOFTDEVICE_HANDLER_INIT(NRF_CLOCK_LFCLKSRC_XTAL_20_PPM, true);
+#endif
+}
+
 static void gpiote_init(void)
 {
     APP_GPIOTE_INIT(APP_GPIOTE_MAX_USERS);
@@ -81,6 +90,7 @@ void simple_uart_config2(uint8_t rts_pin_number,
 
 int main(void)
 {
+    softdevice_init();
     led_init();
     timers_init();
     gpiote_init();
