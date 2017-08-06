@@ -53,7 +53,8 @@ main.c \
 i2c.c \
 led.c \
 motor.c \
-ble.c
+ble.c \
+twi_sw_master.c
 
 #assembly files common to all targets
 ASM_SOURCE_FILES  = ../nRF51_SDK_7.2.0_cf547b5/components/toolchain/gcc/gcc_startup_nrf51.s
