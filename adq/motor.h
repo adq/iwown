@@ -4,8 +4,8 @@
 #ifndef MOTOR_H
 #define MOTOR_H 1
 
-void motorInit();
-void motorOn();
-void motorOff();
+void motor_init();
+void motor_on();
+void motor_off();
 
 #endif

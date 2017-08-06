@@ -43,6 +43,7 @@ C_SOURCE_FILES += \
 ../nRF51_SDK_7.2.0_cf547b5/components/libraries/timer/app_timer.c \
 ../nRF51_SDK_7.2.0_cf547b5/components/libraries/gpiote/app_gpiote.c \
 ../nRF51_SDK_7.2.0_cf547b5/components/drivers_nrf/hal/nrf_delay.c \
+../nRF51_SDK_7.2.0_cf547b5/components/drivers_nrf/simple_uart/simple_uart.c \
 ../nRF51_SDK_7.2.0_cf547b5/components/libraries/util/app_error.c \
 ../nRF51_SDK_7.2.0_cf547b5/components/ble/common/ble_conn_params.c \
 ../nRF51_SDK_7.2.0_cf547b5/components/ble/common/ble_advdata.c \
@@ -50,7 +51,6 @@ C_SOURCE_FILES += \
 ../nRF51_SDK_7.2.0_cf547b5/components/ble/ble_services/ble_dis/ble_dis.c \
 ../nRF51_SDK_7.2.0_cf547b5/components/softdevice/common/softdevice_handler/softdevice_handler.c \
 main.c \
-i2c.c \
 led.c \
 motor.c \
 ble.c \
@@ -64,6 +64,7 @@ INC_PATHS += -I../nRF51_SDK_7.2.0_cf547b5/components/toolchain/gcc
 INC_PATHS += -I../nRF51_SDK_7.2.0_cf547b5/components/toolchain
 INC_PATHS += -I../nRF51_SDK_7.2.0_cf547b5/components/libraries/util
 INC_PATHS += -I../nRF51_SDK_7.2.0_cf547b5/components/drivers_nrf/hal
+INC_PATHS += -I../nRF51_SDK_7.2.0_cf547b5/components/drivers_nrf/simple_uart
 INC_PATHS += -I../nRF51_SDK_7.2.0_cf547b5/components/libraries/scheduler
 INC_PATHS += -I../nRF51_SDK_7.2.0_cf547b5/components/libraries/timer
 INC_PATHS += -I../nRF51_SDK_7.2.0_cf547b5/components/libraries/trace

@@ -16,7 +16,6 @@
 #include "nrf_delay.h"
 #include "nrf_gpio.h"
 #include "i5plus.h"
-#include "i2c.h"
 #include "led.h"
 #include "ble.h"
 #include "motor.h"
@@ -24,13 +23,11 @@
 #include "app_gpiote.h"
 #include "app_scheduler.h"
 #include "softdevice_handler.h"
+#include "twi_master.h"
+#include "simple_uart.h"
 
 
-
-i2cBus oled;
-i2cBus accelerometer;
-i2cBus eeprom;
-
+twi_master_config_t accelerometer = {TWI_Pin_SCL:0, TWI_Pin_SDA:30};
 
 static void gpiote_init(void)
 {
@@ -53,13 +50,45 @@ static void power_manage(void)
     APP_ERROR_CHECK(err_code);
 }
 
+void simple_uart_config2(uint8_t rts_pin_number,
+                        uint8_t txd_pin_number,
+                        uint8_t cts_pin_number,
+                        uint8_t rxd_pin_number,
+                        bool    hwfc)
+{
+/** @snippet [Configure UART RX and TX pin] */
+    nrf_gpio_cfg_output(txd_pin_number);
+    nrf_gpio_cfg_input(rxd_pin_number, NRF_GPIO_PIN_NOPULL);
+
+    NRF_UART0->PSELTXD = txd_pin_number;
+    NRF_UART0->PSELRXD = rxd_pin_number;
+/** @snippet [Configure UART RX and TX pin] */
+    if (hwfc)
+    {
+        nrf_gpio_cfg_output(rts_pin_number);
+        nrf_gpio_cfg_input(cts_pin_number, NRF_GPIO_PIN_NOPULL);
+        NRF_UART0->PSELCTS = cts_pin_number;
+        NRF_UART0->PSELRTS = rts_pin_number;
+        NRF_UART0->CONFIG  = (UART_CONFIG_HWFC_Enabled << UART_CONFIG_HWFC_Pos);
+    }
+
+    NRF_UART0->BAUDRATE      = (UART_BAUDRATE_BAUDRATE_Baud115200 << UART_BAUDRATE_BAUDRATE_Pos);
+    NRF_UART0->ENABLE        = (UART_ENABLE_ENABLE_Enabled << UART_ENABLE_ENABLE_Pos);
+    NRF_UART0->TASKS_STARTTX = 1;
+    NRF_UART0->TASKS_STARTRX = 1;
+    NRF_UART0->EVENTS_RXDRDY = 0;
+}
+
 int main(void)
 {
-    ledInit();
+    led_init();
+
     #ifdef MICROBIT
     nrf_gpio_cfg_output(4);
     nrf_gpio_pin_clear(4);
     nrf_gpio_cfg_output(13);
+    simple_uart_config2(0, 24, 0, 25, false);
+    twi_master_init(accelerometer);
     #endif
 
     timers_init();
@@ -70,16 +99,22 @@ int main(void)
     advertising_init();
     dis_init();
 
-    // motorInit();
-    // i2cInit(&oled, GPIO_OLED_SCL, GPIO_OLED_SDA, I2C_BITRATE);
-    // i2cInit(&accelerometer, GPIO_ACCEL_SCL, GPIO_ACCEL_SDA, I2C_BITRATE);
-    // i2cInit(&eeprom, GPIO_EEPROM_SCL, GPIO_EEPROM_SDA, I2C_BITRATE);
+    // motor_init();
 
     advertising_start();
-    ledOn();
+    led_on();
     #ifdef MICROBIT
     nrf_gpio_pin_set(13);
     #endif
+
+    uint8_t buf[10];
+    buf[0] = 0x0d;
+    twi_master_transfer(accelerometer, 0x3a, buf, 1, false);
+    int ok = twi_master_transfer(accelerometer, 0x3a | TWI_READ_BIT, buf, 1, true);
+
+    uint8_t strbuf[50];
+    sprintf((char*) strbuf, "ACCEL %i %x\r\n", ok, buf[0]);
+    simple_uart_putstring(strbuf);
 
     while (true)
     {

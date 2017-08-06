@@ -1,14 +1,14 @@
 #include "nrf_gpio.h"
 #include "i5plus.h"
 
-void motorInit() {
+void motor_init() {
   nrf_gpio_cfg_output(GPIO_MOTOR);
 }
 
-void motorOn() {
+void motor_on() {
   nrf_gpio_pin_set(GPIO_MOTOR);
 }
 
-void motorOff() {
+void motor_off() {
   nrf_gpio_pin_clear(GPIO_MOTOR);
 }
