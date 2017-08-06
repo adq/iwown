@@ -82,6 +82,11 @@ void simple_uart_config2(uint8_t rts_pin_number,
 int main(void)
 {
     led_init();
+    timers_init();
+    gpiote_init();
+    scheduler_init();
+    ble_stack_init();
+    // motor_init();
 
     #ifdef MICROBIT
     nrf_gpio_cfg_output(4);
@@ -90,16 +95,6 @@ int main(void)
     simple_uart_config2(0, 24, 0, 25, false);
     twi_master_init(accelerometer);
     #endif
-
-    timers_init();
-    gpiote_init();
-    ble_stack_init();
-    scheduler_init();
-    gap_params_init();
-    advertising_init();
-    dis_init();
-
-    // motor_init();
 
     advertising_start();
     led_on();

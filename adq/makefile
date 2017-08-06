@@ -49,6 +49,7 @@ C_SOURCE_FILES += \
 ../nRF51_SDK_7.2.0_cf547b5/components/ble/common/ble_advdata.c \
 ../nRF51_SDK_7.2.0_cf547b5/components/ble/common/ble_srv_common.c \
 ../nRF51_SDK_7.2.0_cf547b5/components/ble/ble_services/ble_dis/ble_dis.c \
+../nRF51_SDK_7.2.0_cf547b5/components/ble/ble_services/ble_bas/ble_bas.c \
 ../nRF51_SDK_7.2.0_cf547b5/components/softdevice/common/softdevice_handler/softdevice_handler.c \
 main.c \
 led.c \
@@ -73,6 +74,7 @@ INC_PATHS += -I../nRF51_SDK_7.2.0_cf547b5/components/softdevice/common/softdevic
 INC_PATHS += -I../nRF51_SDK_7.2.0_cf547b5/components/softdevice/s110/headers
 INC_PATHS += -I../nRF51_SDK_7.2.0_cf547b5/components/ble/common
 INC_PATHS += -I../nRF51_SDK_7.2.0_cf547b5/components/ble/ble_services/ble_dis
+INC_PATHS += -I../nRF51_SDK_7.2.0_cf547b5/components/ble/ble_services/ble_bas
 
 OBJECT_DIRECTORY = _build
 LISTING_DIRECTORY = $(OBJECT_DIRECTORY)
