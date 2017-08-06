@@ -45,11 +45,14 @@ C_SOURCE_FILES += \
 ../nRF51_SDK_7.2.0_cf547b5/components/drivers_nrf/hal/nrf_delay.c \
 ../nRF51_SDK_7.2.0_cf547b5/components/drivers_nrf/simple_uart/simple_uart.c \
 ../nRF51_SDK_7.2.0_cf547b5/components/libraries/util/app_error.c \
+../nRF51_SDK_7.2.0_cf547b5/components/libraries/bootloader_dfu/bootloader_util_gcc.c \
+../nRF51_SDK_7.2.0_cf547b5/components/libraries/bootloader_dfu/experimental/dfu_app_handler.c \
 ../nRF51_SDK_7.2.0_cf547b5/components/ble/common/ble_conn_params.c \
 ../nRF51_SDK_7.2.0_cf547b5/components/ble/common/ble_advdata.c \
 ../nRF51_SDK_7.2.0_cf547b5/components/ble/common/ble_srv_common.c \
 ../nRF51_SDK_7.2.0_cf547b5/components/ble/ble_services/ble_dis/ble_dis.c \
 ../nRF51_SDK_7.2.0_cf547b5/components/ble/ble_services/ble_bas/ble_bas.c \
+../nRF51_SDK_7.2.0_cf547b5/components/ble/ble_services/ble_dfu/ble_dfu.c \
 ../nRF51_SDK_7.2.0_cf547b5/components/softdevice/common/softdevice_handler/softdevice_handler.c \
 main.c \
 led.c \
@@ -70,11 +73,16 @@ INC_PATHS += -I../nRF51_SDK_7.2.0_cf547b5/components/libraries/scheduler
 INC_PATHS += -I../nRF51_SDK_7.2.0_cf547b5/components/libraries/timer
 INC_PATHS += -I../nRF51_SDK_7.2.0_cf547b5/components/libraries/trace
 INC_PATHS += -I../nRF51_SDK_7.2.0_cf547b5/components/libraries/gpiote
+INC_PATHS += -I../nRF51_SDK_7.2.0_cf547b5/components/libraries/bootloader_dfu
+INC_PATHS += -I../nRF51_SDK_7.2.0_cf547b5/components/libraries/bootloader_dfu/experimental
 INC_PATHS += -I../nRF51_SDK_7.2.0_cf547b5/components/softdevice/common/softdevice_handler
 INC_PATHS += -I../nRF51_SDK_7.2.0_cf547b5/components/softdevice/s110/headers
 INC_PATHS += -I../nRF51_SDK_7.2.0_cf547b5/components/ble/common
+INC_PATHS += -I../nRF51_SDK_7.2.0_cf547b5/components/ble/device_manager
+INC_PATHS += -I../nRF51_SDK_7.2.0_cf547b5/components/ble/device_manager/config
 INC_PATHS += -I../nRF51_SDK_7.2.0_cf547b5/components/ble/ble_services/ble_dis
 INC_PATHS += -I../nRF51_SDK_7.2.0_cf547b5/components/ble/ble_services/ble_bas
+INC_PATHS += -I../nRF51_SDK_7.2.0_cf547b5/components/ble/ble_services/ble_dfu
 
 OBJECT_DIRECTORY = _build
 LISTING_DIRECTORY = $(OBJECT_DIRECTORY)

@@ -60,4 +60,9 @@
 #define APP_ADV_INTERVAL                64                                          /**< The advertising interval (in units of 0.625 ms. This value corresponds to 40 ms). */
 #define APP_ADV_TIMEOUT_IN_SECONDS      180                                         /**< The advertising timeout (in units of seconds). */
 
+#define DFU_REV_MAJOR                        0x00                                                    /** DFU Major revision number to be exposed. */
+#define DFU_REV_MINOR                        0x05                                                    /** DFU Minor revision number to be exposed. */
+#define DFU_REVISION                         ((DFU_REV_MAJOR << 8) | DFU_REV_MINOR)                  /** DFU Revision number to be exposed. Combined of major and minor versions. */
+
+
 #endif

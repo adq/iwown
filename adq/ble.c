@@ -5,6 +5,8 @@
 #include "ble.h"
 #include "ble_dis.h"
 #include "ble_bas.h"
+#include "ble_dfu.h"
+#include "dfu_app_handler.h"
 #include "ble_srv_common.h"
 #include "ble_advdata.h"
 #include "ble_conn_params.h"
@@ -12,9 +14,10 @@
 
 static uint16_t                         m_conn_handle = BLE_CONN_HANDLE_INVALID;    /**< Handle of the current connection. */
 static ble_bas_t                        m_bas;                                     /**< Structure used to identify the battery service. */
+static ble_dfu_t            m_dfu;                                                                   /**< Structure used to identify the Device Firmware Update service. */
 
 
-static void gap_params_init(void)
+static void gap_init(void)
 {
     uint32_t                err_code;
     ble_gap_conn_params_t   gap_conn_params;
@@ -133,6 +136,22 @@ static void bas_init(void)
 }
 
 
+static void dfu_init(void)
+{
+    uint32_t       err_code;
+    ble_dfu_init_t dfu_init_obj;
+
+    // Initialize the Device Firmware Update Service.
+    memset(&dfu_init_obj, 0, sizeof(dfu_init_obj));
+
+    dfu_init_obj.revision      = DFU_REVISION;
+    dfu_init_obj.evt_handler   = dfu_app_on_dfu_evt;
+
+    err_code = ble_dfu_init(&m_dfu, &dfu_init_obj);
+    APP_ERROR_CHECK(err_code);
+}
+
+
 static void on_ble_evt(ble_evt_t * p_ble_evt)
 {
     uint32_t                         err_code;
@@ -167,6 +186,8 @@ static void ble_evt_dispatch(ble_evt_t * p_ble_evt)
 {
     on_ble_evt(p_ble_evt);
     ble_conn_params_on_ble_evt(p_ble_evt);
+    ble_bas_on_ble_evt(&m_bas, p_ble_evt);
+    ble_dfu_on_ble_evt(&m_dfu, p_ble_evt);
 }
 
 static void sys_evt_dispatch(uint32_t sys_evt)
@@ -193,8 +214,9 @@ void ble_stack_init(void)
     APP_ERROR_CHECK(err_code);
 
     // init services
-    gap_params_init();
+    gap_init();
     advertising_init();
     dis_init();
     bas_init();
+    dfu_init();
 }

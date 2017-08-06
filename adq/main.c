@@ -25,9 +25,13 @@
 #include "softdevice_handler.h"
 #include "twi_master.h"
 #include "simple_uart.h"
+#include "bootloader_types.h"
 
 
 // NOTE: get into DFU bootloader: NRF_POWER->GPREGRET == BOOTLOADER_DFU_START  then soft reset
+// sd_power_gpregret_set(BOOTLOADER_DFU_START);
+// sd_nvic_SystemReset();
+// use dfu_app_handler
 
 twi_master_config_t accelerometer = {TWI_Pin_SCL:0, TWI_Pin_SDA:30};
 
