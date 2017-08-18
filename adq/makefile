@@ -123,17 +123,19 @@ ASMFLAGS += -DBLE_STACK_SUPPORT_REQD
 ASMFLAGS += -DS110
 ASMFLAGS += -DSOFTDEVICE_PRESENT
 #default target - first one defined
-default: clean adq
+default: clean watchapp bitapp
 
 #building all targets
 all: clean
 	$(NO_ECHO)$(MAKE) -f $(MAKEFILE_NAME) -C $(MAKEFILE_DIR) -e cleanobj
-	$(NO_ECHO)$(MAKE) -f $(MAKEFILE_NAME) -C $(MAKEFILE_DIR) -e adq
+	$(NO_ECHO)$(MAKE) -f $(MAKEFILE_NAME) -C $(MAKEFILE_DIR) -e watchapp
+	$(NO_ECHO)$(MAKE) -f $(MAKEFILE_NAME) -C $(MAKEFILE_DIR) -e bitapp
 
 #target for printing all targets
 help:
 	@echo following targets are available:
-	@echo 	adq
+	@echo 	watchapp
+	@echo 	bitapp
 
 
 C_SOURCE_FILE_NAMES = $(notdir $(C_SOURCE_FILES))
@@ -149,13 +151,21 @@ vpath %.s $(ASM_PATHS)
 
 OBJECTS = $(C_OBJECTS) $(ASM_OBJECTS)
 
-adq: OUTPUT_FILENAME := adq
-# adq: LINKER_SCRIPT=../nRF51_SDK_7.2.0_cf547b5/components/toolchain/gcc/gcc_nrf51_s110_xxac.ld
-adq: LINKER_SCRIPT=../nRF51_SDK_7.2.0_cf547b5/components/toolchain/gcc/gcc_nrf51_s110_xxaa.ld
-adq: $(BUILD_DIRECTORIES) $(OBJECTS)
+bitapp: OUTPUT_FILENAME := bitapp
+bitapp: LINKER_SCRIPT=../nRF51_SDK_7.2.0_cf547b5/components/toolchain/gcc/gcc_nrf51_s110_xxaa.ld
+bitapp: $(BUILD_DIRECTORIES) $(OBJECTS)
 	@echo Linking target: $(OUTPUT_FILENAME).out
 	$(NO_ECHO)$(CC) $(LDFLAGS) $(OBJECTS) $(LIBS) -o $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).out
 	$(NO_ECHO)$(MAKE) -f $(MAKEFILE_NAME) -C $(MAKEFILE_DIR) -e finalize
+
+
+watchapp: OUTPUT_FILENAME := watchapp
+watchapp: LINKER_SCRIPT=../nRF51_SDK_7.2.0_cf547b5/components/toolchain/gcc/gcc_nrf51_s110_xxac.ld
+watchapp: $(BUILD_DIRECTORIES) $(OBJECTS)
+	@echo Linking target: $(OUTPUT_FILENAME).out
+	$(NO_ECHO)$(CC) $(LDFLAGS) $(OBJECTS) $(LIBS) -o $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).out
+	$(NO_ECHO)$(MAKE) -f $(MAKEFILE_NAME) -C $(MAKEFILE_DIR) -e finalize
+
 
 ## Create build directories
 $(BUILD_DIRECTORIES):
@@ -199,7 +209,7 @@ genbin:
 genhex:
 	@echo Preparing: $(OUTPUT_FILENAME).hex
 	$(NO_ECHO)$(OBJCOPY) -O ihex $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).out $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).hex
-	./hexmerge _build/adq.hex ../nRF51_SDK_7.2.0_cf547b5/components/softdevice/s110/s110_nrf51822_7.3.0_softdevice.hex -o _build/adq_softdevice.hex
+	./hexmerge _build/$(OUTPUT_FILENAME).hex ../nRF51_SDK_7.2.0_cf547b5/components/softdevice/s110/s110_nrf51822_7.3.0_softdevice.hex -o _build/$(OUTPUT_FILENAME)_softdevice.hex
 
 echosize:
 	-@echo ""
