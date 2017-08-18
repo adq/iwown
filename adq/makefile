@@ -198,7 +198,7 @@ $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).hex: $(OUTPUT_BINARY_DIRECTORY)/$(
 	@echo Preparing: $(OUTPUT_FILENAME).hex
 	$(NO_ECHO)$(OBJCOPY) -O ihex $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).out $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).hex
 
-finalize: genbin genhex echosize
+finalize: genbin genhex genpkg echosize
 
 genbin:
 	@echo Preparing: $(OUTPUT_FILENAME).bin
@@ -209,6 +209,10 @@ genhex:
 	@echo Preparing: $(OUTPUT_FILENAME).hex
 	$(NO_ECHO)$(OBJCOPY) -O ihex $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).out $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).hex
 	./hexmerge _build/$(OUTPUT_FILENAME).hex ../nRF51_SDK_7.2.0_cf547b5/components/softdevice/s110/s110_nrf51822_7.3.0_softdevice.hex -o _build/$(OUTPUT_FILENAME)_softdevice.hex
+
+genpkg:
+	@echo Preparing: $(OUTPUT_FILENAME).zip
+	$(NO_ECHO)../nrfutil052 dfu genpkg $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).zip --application $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).hex
 
 echosize:
 	-@echo ""
