@@ -54,7 +54,6 @@ C_SOURCE_FILES += \
 ../nRF51_SDK_7.2.0_cf547b5/components/ble/ble_services/ble_bas/ble_bas.c \
 ../nRF51_SDK_7.2.0_cf547b5/components/ble/ble_services/ble_dfu/ble_dfu.c \
 ../nRF51_SDK_7.2.0_cf547b5/components/softdevice/common/softdevice_handler/softdevice_handler.c \
-main.c \
 led.c \
 motor.c \
 ble.c \
@@ -153,17 +152,17 @@ OBJECTS = $(C_OBJECTS) $(ASM_OBJECTS)
 
 bitapp: OUTPUT_FILENAME := bitapp
 bitapp: LINKER_SCRIPT=../nRF51_SDK_7.2.0_cf547b5/components/toolchain/gcc/gcc_nrf51_s110_xxaa.ld
-bitapp: $(BUILD_DIRECTORIES) $(OBJECTS)
+bitapp: $(BUILD_DIRECTORIES) $(OBJECTS) _build/microbit.o
 	@echo Linking target: $(OUTPUT_FILENAME).out
-	$(NO_ECHO)$(CC) $(LDFLAGS) $(OBJECTS) $(LIBS) -o $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).out
+	$(NO_ECHO)$(CC) $(LDFLAGS) $(OBJECTS) _build/microbit.o $(LIBS) -o $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).out
 	$(NO_ECHO)$(MAKE) -f $(MAKEFILE_NAME) -C $(MAKEFILE_DIR) -e finalize
 
 
 watchapp: OUTPUT_FILENAME := watchapp
 watchapp: LINKER_SCRIPT=../nRF51_SDK_7.2.0_cf547b5/components/toolchain/gcc/gcc_nrf51_s110_xxac.ld
-watchapp: $(BUILD_DIRECTORIES) $(OBJECTS)
+watchapp: $(BUILD_DIRECTORIES) $(OBJECTS) _build/main.o
 	@echo Linking target: $(OUTPUT_FILENAME).out
-	$(NO_ECHO)$(CC) $(LDFLAGS) $(OBJECTS) $(LIBS) -o $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).out
+	$(NO_ECHO)$(CC) $(LDFLAGS) $(OBJECTS) _build/main.o $(LIBS) -o $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).out
 	$(NO_ECHO)$(MAKE) -f $(MAKEFILE_NAME) -C $(MAKEFILE_DIR) -e finalize
 
 

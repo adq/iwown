@@ -37,11 +37,7 @@ twi_master_config_t accelerometer = {TWI_Pin_SCL:0, TWI_Pin_SDA:30};
 
 static void softdevice_init(void)
 {
-#ifdef MICROBIT
-    SOFTDEVICE_HANDLER_INIT(NRF_CLOCK_LFCLKSRC_SYNTH_250_PPM, true);
-#else
     SOFTDEVICE_HANDLER_INIT(NRF_CLOCK_LFCLKSRC_XTAL_20_PPM, true);
-#endif
 }
 
 static void gpiote_init(void)
@@ -102,30 +98,19 @@ int main(void)
     gpiote_init();
     scheduler_init();
     ble_stack_init();
-    // motor_init();
-
-    #ifdef MICROBIT
-    nrf_gpio_cfg_output(4);
-    nrf_gpio_pin_clear(4);
-    nrf_gpio_cfg_output(13);
-    simple_uart_config2(0, 24, 0, 25, false);
-    twi_master_init(accelerometer);
-    #endif
+    motor_init();
 
     advertising_start();
     led_on();
-    #ifdef MICROBIT
-    nrf_gpio_pin_set(13);
-    #endif
 
-    uint8_t buf[10];
-    buf[0] = 0x0d;
-    twi_master_transfer(accelerometer, 0x3a, buf, 1, false);
-    int ok = twi_master_transfer(accelerometer, 0x3a | TWI_READ_BIT, buf, 1, true);
+    // uint8_t buf[10];
+    // buf[0] = 0x0d;
+    // twi_master_transfer(accelerometer, 0x3a, buf, 1, false);
+    // int ok = twi_master_transfer(accelerometer, 0x3a | TWI_READ_BIT, buf, 1, true);
 
-    uint8_t strbuf[50];
-    sprintf((char*) strbuf, "ACCEL %i %x\r\n", ok, buf[0]);
-    simple_uart_putstring(strbuf);
+    // uint8_t strbuf[50];
+    // sprintf((char*) strbuf, "ACCEL %i %x\r\n", ok, buf[0]);
+    // simple_uart_putstring(strbuf);
 
     while (true)
     {
