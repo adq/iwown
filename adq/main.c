@@ -72,7 +72,8 @@ int main(void)
     motor_init();
 
     advertising_start();
-    led_on();
+    // led_on();
+    motor_on();
 
     // uint8_t buf[10];
     // buf[0] = 0x0d;

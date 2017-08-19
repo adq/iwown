@@ -1,0 +1,8 @@
+#!/bin/python2
+from PyCRC.CRCCCITT import CRCCCITT
+import sys
+
+with open(sys.argv[1]) as f:
+    bytes = f.read()
+    print hex(len(bytes))
+    print hex(CRCCCITT(version='FFFF').calculate(bytes))
