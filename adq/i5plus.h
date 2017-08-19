@@ -31,6 +31,9 @@
 #define GPIO_TOUCH1 4
 #define GPIO_TOUCH0 3
 
+#define I2C_EEPROM 0xA0
+#define I2C_ACCEL 0x32
+#define I2C_OLED 0x78
 
 #define APP_GPIOTE_MAX_USERS            1                                           /**< Maximum number of users of the GPIOTE handler. */
 
