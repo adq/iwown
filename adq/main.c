@@ -66,8 +66,6 @@ int main(void)
     motor_init();
     led_init();
 
-    motor_on();
-
     softdevice_init();
     timers_init();
     gpiote_init();
@@ -85,6 +83,8 @@ int main(void)
     // uint8_t strbuf[50];
     // sprintf((char*) strbuf, "ACCEL %i %x\r\n", ok, buf[0]);
     // simple_uart_putstring(strbuf);
+
+    led_on();
 
     while (true)
     {

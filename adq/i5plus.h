@@ -42,7 +42,7 @@
 #define SCHED_QUEUE_SIZE                29                                          /**< Maximum number of events in the scheduler queue. */
 
 #define MANUFACTURER_NAME "ADQ"
-#define DEVICE_NAME "ADQ WOZ HERE"
+#define DEVICE_NAME "ADQ WATCH"
 
 #define PNP_ID_VENDOR_ID_SOURCE          0x02                                           /**< Vendor ID Source. */
 #define PNP_ID_VENDOR_ID                 0x1915                                         /**< Vendor ID. */

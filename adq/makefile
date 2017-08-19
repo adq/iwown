@@ -159,7 +159,7 @@ bitapp: $(BUILD_DIRECTORIES) $(OBJECTS) _build/microbit.o
 
 
 watchapp: OUTPUT_FILENAME := watchapp
-watchapp: LINKER_SCRIPT=../nRF51_SDK_7.2.0_cf547b5/components/toolchain/gcc/gcc_nrf51_s110_xxac.ld
+watchapp: LINKER_SCRIPT=../nRF51_SDK_7.2.0_cf547b5/components/toolchain/gcc/gcc_nrf51_s110_xxaa.ld
 watchapp: $(BUILD_DIRECTORIES) $(OBJECTS) _build/main.o
 	@echo Linking target: $(OUTPUT_FILENAME).out
 	$(NO_ECHO)$(CC) $(LDFLAGS) $(OBJECTS) _build/main.o $(LIBS) -o $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).out
