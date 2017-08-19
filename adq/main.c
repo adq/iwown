@@ -18,6 +18,7 @@
 #include "i5plus.h"
 #include "led.h"
 #include "ble.h"
+#include "eeprom.h"
 #include "motor.h"
 #include "app_timer.h"
 #include "app_gpiote.h"
@@ -33,7 +34,6 @@
 // sd_nvic_SystemReset();
 // use dfu_app_handler
 
-twi_master_config_t twi_eeprom = {TWI_Pin_SCL:GPIO_EEPROM_SCL, TWI_Pin_SDA:GPIO_EEPROM_SDA};
 twi_master_config_t twi_accelerometer = {TWI_Pin_SCL:GPIO_ACCEL_SCL, TWI_Pin_SDA:GPIO_ACCEL_SDA};
 twi_master_config_t twi_oled = {TWI_Pin_SCL:GPIO_OLED_SCL, TWI_Pin_SDA:GPIO_OLED_SDA};
 
@@ -74,7 +74,7 @@ int main(void)
     scheduler_init();
     ble_stack_init();
     simple_uart_config(0, GPIO_UART_TX, 0, GPIO_UART_RX, false);
-    twi_master_init(twi_eeprom);
+    eeprom_init();
     twi_master_init(twi_accelerometer);
     twi_master_init(twi_oled);
 

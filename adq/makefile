@@ -57,7 +57,8 @@ C_SOURCE_FILES += \
 led.c \
 motor.c \
 ble.c \
-twi_sw_master.c
+twi_sw_master.c \
+eeprom.c
 
 #assembly files common to all targets
 ASM_SOURCE_FILES  = ../nRF51_SDK_7.2.0_cf547b5/components/toolchain/gcc/gcc_startup_nrf51.s
