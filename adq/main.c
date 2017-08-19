@@ -64,10 +64,11 @@ static void power_manage(void)
 int main(void)
 {
     motor_init();
+    led_init();
+
     motor_on();
 
     softdevice_init();
-    led_init();
     timers_init();
     gpiote_init();
     scheduler_init();
