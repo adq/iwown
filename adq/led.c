@@ -2,7 +2,7 @@
 #include "i5plus.h"
 
 void led_init() {
-  nrf_gpio_pin_clear(GPIO_LED);
+  nrf_gpio_pin_set(GPIO_LED);
   NRF_GPIO->PIN_CNF[GPIO_LED] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos) \
                                  |(GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)    \
                                  |(GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)  \
@@ -11,9 +11,9 @@ void led_init() {
 }
 
 void led_on() {
-  nrf_gpio_pin_set(GPIO_LED);
+  nrf_gpio_pin_clear(GPIO_LED);
 }
 
 void led_off() {
-  nrf_gpio_pin_clear(GPIO_LED);
+  nrf_gpio_pin_set(GPIO_LED);
 }
