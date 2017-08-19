@@ -63,17 +63,18 @@ static void power_manage(void)
 
 int main(void)
 {
+    motor_init();
+    motor_on();
+
     softdevice_init();
     led_init();
     timers_init();
     gpiote_init();
     scheduler_init();
     ble_stack_init();
-    motor_init();
 
     advertising_start();
     // led_on();
-    motor_on();
 
     // uint8_t buf[10];
     // buf[0] = 0x0d;

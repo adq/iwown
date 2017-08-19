@@ -203,7 +203,7 @@ finalize: genbin genhex genpkg echosize
 genbin:
 	@echo Preparing: $(OUTPUT_FILENAME).bin
 	$(NO_ECHO)$(OBJCOPY) -O binary $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).out $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).bin
-	./makebootdat $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).out
+	./makebootdat $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).bin
 
 ## Create binary .hex file from the .out file
 genhex:

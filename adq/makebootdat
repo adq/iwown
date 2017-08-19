@@ -11,4 +11,4 @@ with open(sys.argv[1]) as f:
     bytes = f.read()
 
 with open("{}.bootdat".format(sys.argv[1]), 'w') as f:
-    f.write(struct.pack('>IIIIIIII', 1, CRCCCITT(version='FFFF').calculate(bytes), 255, len(bytes), 0, 0, 0, 0))
+    f.write(struct.pack('<IIIIIIII', 1, CRCCCITT(version='FFFF').calculate(bytes), 255, len(bytes), 0, 0, 0, 0))
