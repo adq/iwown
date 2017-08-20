@@ -7,7 +7,7 @@
 #include "app_util_platform.h"
 
 
-static spi_master_config_t spi_fontrom = {
+static const spi_master_config_t spi_fontrom = {
     SPI_Freq: SPI_FREQUENCY_FREQUENCY_M1,
     SPI_Pin_SCK: GPIO_FONTROM_SCLK,
     SPI_Pin_MISO: GPIO_FONTROM_MISO,
