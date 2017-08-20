@@ -4,7 +4,7 @@
 #include "eeprom.h"
 
 
-static twi_master_config_t twi_eeprom = {TWI_Pin_SCL:GPIO_EEPROM_SCL, TWI_Pin_SDA:GPIO_EEPROM_SDA};
+static const twi_master_config_t twi_eeprom = {TWI_Pin_SCL:GPIO_EEPROM_SCL, TWI_Pin_SDA:GPIO_EEPROM_SDA};
 
 void eeprom_init() {
     twi_master_init(twi_eeprom);
