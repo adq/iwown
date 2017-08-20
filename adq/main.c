@@ -21,6 +21,7 @@
 #include "eeprom.h"
 #include "fontrom.h"
 #include "motor.h"
+#include "accel.h"
 #include "app_timer.h"
 #include "app_gpiote.h"
 #include "app_scheduler.h"
@@ -35,7 +36,6 @@
 // sd_nvic_SystemReset();
 // use dfu_app_handler
 
-twi_master_config_t twi_accelerometer = {TWI_Pin_SCL:GPIO_ACCEL_SCL, TWI_Pin_SDA:GPIO_ACCEL_SDA};
 twi_master_config_t twi_oled = {TWI_Pin_SCL:GPIO_OLED_SCL, TWI_Pin_SDA:GPIO_OLED_SDA};
 
 static void softdevice_init(void)
@@ -77,8 +77,8 @@ int main(void)
     simple_uart_config(0, GPIO_UART_TX, 0, GPIO_UART_RX, false);
     eeprom_init();
     fontrom_init();
+    accel_init();
 
-    twi_master_init(twi_accelerometer);
     twi_master_init(twi_oled);
 
     advertising_start();
