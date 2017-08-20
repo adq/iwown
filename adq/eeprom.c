@@ -1,6 +1,7 @@
 #include "nrf_gpio.h"
 #include "i5plus.h"
 #include "twi_master.h"
+#include "eeprom.h"
 
 
 static twi_master_config_t twi_eeprom = {TWI_Pin_SCL:GPIO_EEPROM_SCL, TWI_Pin_SDA:GPIO_EEPROM_SDA};

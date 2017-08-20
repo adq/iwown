@@ -44,6 +44,7 @@ C_SOURCE_FILES += \
 ../nRF51_SDK_7.2.0_cf547b5/components/libraries/gpiote/app_gpiote.c \
 ../nRF51_SDK_7.2.0_cf547b5/components/drivers_nrf/hal/nrf_delay.c \
 ../nRF51_SDK_7.2.0_cf547b5/components/drivers_nrf/simple_uart/simple_uart.c \
+../nRF51_SDK_7.2.0_cf547b5/components/drivers_nrf/spi_master/spi_master.c \
 ../nRF51_SDK_7.2.0_cf547b5/components/libraries/util/app_error.c \
 ../nRF51_SDK_7.2.0_cf547b5/components/libraries/bootloader_dfu/bootloader_util_gcc.c \
 ../nRF51_SDK_7.2.0_cf547b5/components/libraries/bootloader_dfu/experimental/dfu_app_handler.c \
@@ -58,7 +59,8 @@ led.c \
 motor.c \
 ble.c \
 twi_sw_master.c \
-eeprom.c
+eeprom.c \
+fontrom.c
 
 #assembly files common to all targets
 ASM_SOURCE_FILES  = ../nRF51_SDK_7.2.0_cf547b5/components/toolchain/gcc/gcc_startup_nrf51.s
@@ -69,6 +71,7 @@ INC_PATHS += -I../nRF51_SDK_7.2.0_cf547b5/components/toolchain
 INC_PATHS += -I../nRF51_SDK_7.2.0_cf547b5/components/libraries/util
 INC_PATHS += -I../nRF51_SDK_7.2.0_cf547b5/components/drivers_nrf/hal
 INC_PATHS += -I../nRF51_SDK_7.2.0_cf547b5/components/drivers_nrf/simple_uart
+INC_PATHS += -I../nRF51_SDK_7.2.0_cf547b5/components/drivers_nrf/spi_master
 INC_PATHS += -I../nRF51_SDK_7.2.0_cf547b5/components/libraries/scheduler
 INC_PATHS += -I../nRF51_SDK_7.2.0_cf547b5/components/libraries/timer
 INC_PATHS += -I../nRF51_SDK_7.2.0_cf547b5/components/libraries/trace
@@ -98,6 +101,7 @@ CFLAGS += -DMICROBIT
 CFLAGS += -DBLE_STACK_SUPPORT_REQD
 CFLAGS += -DS110
 CFLAGS += -DSOFTDEVICE_PRESENT
+CFLAGS += -DSPI_MASTER_0_ENABLE
 CFLAGS += -mcpu=cortex-m0
 CFLAGS += -mthumb -mabi=aapcs --std=gnu99
 CFLAGS += -Wall -Werror -O3

@@ -19,6 +19,7 @@
 #include "led.h"
 #include "ble.h"
 #include "eeprom.h"
+#include "fontrom.h"
 #include "motor.h"
 #include "app_timer.h"
 #include "app_gpiote.h"
@@ -75,6 +76,8 @@ int main(void)
     ble_stack_init();
     simple_uart_config(0, GPIO_UART_TX, 0, GPIO_UART_RX, false);
     eeprom_init();
+    fontrom_init();
+
     twi_master_init(twi_accelerometer);
     twi_master_init(twi_oled);
 
