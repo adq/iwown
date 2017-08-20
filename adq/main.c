@@ -88,7 +88,7 @@ int main(void)
 
     // uint8_t strbuf[50];
     // sprintf((char*) strbuf, "ACCEL %i %x\r\n", ok, buf[0]);
-    // simple_uart_putstring(strbuf);
+    simple_uart_putstring((uint8_t*) "HELLO\r\n");
 
     led_on();
 
