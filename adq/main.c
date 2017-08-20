@@ -86,9 +86,17 @@ int main(void)
     // twi_master_transfer(accelerometer, 0x3a, buf, 1, false);
     // int ok = twi_master_transfer(accelerometer, 0x3a | TWI_READ_BIT, buf, 1, true);
 
-    // uint8_t strbuf[50];
-    // sprintf((char*) strbuf, "ACCEL %i %x\r\n", ok, buf[0]);
-    simple_uart_putstring((uint8_t*) "HELLO\r\n");
+    char buf[256];
+    for(int i=0; i < 512; i++) {
+        int v = eeprom_read_byte(i);
+        char c;
+        if ((v < 32) || (v > 126)) {
+            c = ' ';
+        }
+
+        sprintf(buf, "%04x: %02x [%c]\r\n", i, v, c);
+        simple_uart_putstring((uint8_t*) buf);
+    }
 
     led_on();
 
