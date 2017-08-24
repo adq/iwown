@@ -22,6 +22,7 @@
 #include "fontrom.h"
 #include "motor.h"
 #include "accel.h"
+#include "oled.h"
 #include "app_timer.h"
 #include "app_gpiote.h"
 #include "app_scheduler.h"
@@ -36,7 +37,6 @@
 // sd_nvic_SystemReset();
 // use dfu_app_handler
 
-twi_master_config_t twi_oled = {TWI_Pin_SCL:GPIO_OLED_SCL, TWI_Pin_SDA:GPIO_OLED_SDA};
 
 static void softdevice_init(void)
 {
@@ -78,8 +78,7 @@ int main(void)
     eeprom_init();
     fontrom_init();
     accel_init();
-
-    twi_master_init(twi_oled);
+    oled_init();
 
     advertising_start();
     // led_on();
