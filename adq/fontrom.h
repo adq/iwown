@@ -6,4 +6,6 @@
 
 void fontrom_init();
 
+uint32_t fontrom_read_bytes(uint32_t addr, uint8_t *rxbuf, uint16_t rxcount);
+
 #endif
