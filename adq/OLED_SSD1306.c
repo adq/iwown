@@ -22,8 +22,8 @@ All text above, and the splash screen below must be included in any redistributi
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-//#include "Adafruit_GFX.h"
-#include "Adafruit_SSD1306.h"
+// #include "OLED_GFX.h"
+#include "OLED_SSD1306.h"
 
 // the memory buffer for the LCD
 
@@ -107,12 +107,12 @@ static uint32_t _curHeight;
 // static uint8_t _textsize;
 static uint8_t _rotation;
 
-static void Adafruit_SSD1306__drawFastVLineInternal(int16_t x, int16_t __y, int16_t __h, uint16_t color);
-static void Adafruit_SSD1306__drawFastHLineInternal(int16_t x, int16_t y, int16_t w, uint16_t color);
+static void OLED_drawFastVLineInternal(int16_t x, int16_t __y, int16_t __h, uint16_t color);
+static void OLED_drawFastHLineInternal(int16_t x, int16_t y, int16_t w, uint16_t color);
 
 
 // the most basic function, set a single pixel
-void Adafruit_SSD1306__drawPixel(int16_t x, int16_t y, uint16_t color) {
+void OLED_drawPixel(int16_t x, int16_t y, uint16_t color) {
   if ((x < 0) || (x >= _curWidth) || (y < 0) || (y >= _curHeight))
     return;
 
@@ -142,7 +142,7 @@ void Adafruit_SSD1306__drawPixel(int16_t x, int16_t y, uint16_t color) {
 
 }
 
-void Adafruit_SSD1306__begin(uint8_t vccstate, uint8_t i2caddr, bool reset) {
+void OLED_begin(uint8_t vccstate, uint8_t i2caddr, bool reset) {
   _vccstate = vccstate;
   _i2caddr = i2caddr;
 
@@ -202,77 +202,77 @@ void Adafruit_SSD1306__begin(uint8_t vccstate, uint8_t i2caddr, bool reset) {
   }
 
   // Init sequence
-  Adafruit_SSD1306__ssd1306_command(SSD1306_DISPLAYOFF);                    // 0xAE
-  Adafruit_SSD1306__ssd1306_command(SSD1306_SETDISPLAYCLOCKDIV);            // 0xD5
-  Adafruit_SSD1306__ssd1306_command(0x80);                                  // the suggested ratio 0x80
+  OLED_ssd1306_command(SSD1306_DISPLAYOFF);                    // 0xAE
+  OLED_ssd1306_command(SSD1306_SETDISPLAYCLOCKDIV);            // 0xD5
+  OLED_ssd1306_command(0x80);                                  // the suggested ratio 0x80
 
-  Adafruit_SSD1306__ssd1306_command(SSD1306_SETMULTIPLEX);                  // 0xA8
-  Adafruit_SSD1306__ssd1306_command(SSD1306_LCDHEIGHT - 1);
+  OLED_ssd1306_command(SSD1306_SETMULTIPLEX);                  // 0xA8
+  OLED_ssd1306_command(SSD1306_LCDHEIGHT - 1);
 
-  Adafruit_SSD1306__ssd1306_command(SSD1306_SETDISPLAYOFFSET);              // 0xD3
-  Adafruit_SSD1306__ssd1306_command(0x0);                                   // no offset
-  Adafruit_SSD1306__ssd1306_command(SSD1306_SETSTARTLINE | 0x0);            // line #0
-  Adafruit_SSD1306__ssd1306_command(SSD1306_CHARGEPUMP);                    // 0x8D
+  OLED_ssd1306_command(SSD1306_SETDISPLAYOFFSET);              // 0xD3
+  OLED_ssd1306_command(0x0);                                   // no offset
+  OLED_ssd1306_command(SSD1306_SETSTARTLINE | 0x0);            // line #0
+  OLED_ssd1306_command(SSD1306_CHARGEPUMP);                    // 0x8D
   if (vccstate == SSD1306_EXTERNALVCC)
-    { Adafruit_SSD1306__ssd1306_command(0x10); }
+    { OLED_ssd1306_command(0x10); }
   else
-    { Adafruit_SSD1306__ssd1306_command(0x14); }
-  Adafruit_SSD1306__ssd1306_command(SSD1306_MEMORYMODE);                    // 0x20
-  Adafruit_SSD1306__ssd1306_command(0x00);                                  // 0x0 act like ks0108
-  Adafruit_SSD1306__ssd1306_command(SSD1306_SEGREMAP | 0x1);
-  Adafruit_SSD1306__ssd1306_command(SSD1306_COMSCANDEC);
+    { OLED_ssd1306_command(0x14); }
+  OLED_ssd1306_command(SSD1306_MEMORYMODE);                    // 0x20
+  OLED_ssd1306_command(0x00);                                  // 0x0 act like ks0108
+  OLED_ssd1306_command(SSD1306_SEGREMAP | 0x1);
+  OLED_ssd1306_command(SSD1306_COMSCANDEC);
 
  #if defined SSD1306_128_32
-  Adafruit_SSD1306__ssd1306_command(SSD1306_SETCOMPINS);                    // 0xDA
-  Adafruit_SSD1306__ssd1306_command(0x02);
-  Adafruit_SSD1306__ssd1306_command(SSD1306_SETCONTRAST);                   // 0x81
-  Adafruit_SSD1306__ssd1306_command(0x8F);
+  OLED_ssd1306_command(SSD1306_SETCOMPINS);                    // 0xDA
+  OLED_ssd1306_command(0x02);
+  OLED_ssd1306_command(SSD1306_SETCONTRAST);                   // 0x81
+  OLED_ssd1306_command(0x8F);
 
 #elif defined SSD1306_128_64
-  Adafruit_SSD1306__ssd1306_command(SSD1306_SETCOMPINS);                    // 0xDA
-  Adafruit_SSD1306__ssd1306_command(0x12);
-  Adafruit_SSD1306__ssd1306_command(SSD1306_SETCONTRAST);                   // 0x81
+  OLED_ssd1306_command(SSD1306_SETCOMPINS);                    // 0xDA
+  OLED_ssd1306_command(0x12);
+  OLED_ssd1306_command(SSD1306_SETCONTRAST);                   // 0x81
   if (vccstate == SSD1306_EXTERNALVCC)
-    { Adafruit_SSD1306__ssd1306_command(0x9F); }
+    { OLED_ssd1306_command(0x9F); }
   else
-    { Adafruit_SSD1306__ssd1306_command(0xCF); }
+    { OLED_ssd1306_command(0xCF); }
 
 #elif defined SSD1306_96_16
-  Adafruit_SSD1306__ssd1306_command(SSD1306_SETCOMPINS);                    // 0xDA
-  Adafruit_SSD1306__ssd1306_command(0x2);   //ada x12
-  Adafruit_SSD1306__ssd1306_command(SSD1306_SETCONTRAST);                   // 0x81
+  OLED_ssd1306_command(SSD1306_SETCOMPINS);                    // 0xDA
+  OLED_ssd1306_command(0x2);   //ada x12
+  OLED_ssd1306_command(SSD1306_SETCONTRAST);                   // 0x81
   if (vccstate == SSD1306_EXTERNALVCC)
-    { Adafruit_SSD1306__ssd1306_command(0x10); }
+    { OLED_ssd1306_command(0x10); }
   else
-    { Adafruit_SSD1306__ssd1306_command(0xAF); }
+    { OLED_ssd1306_command(0xAF); }
 
 #endif
 
-  Adafruit_SSD1306__ssd1306_command(SSD1306_SETPRECHARGE);                  // 0xd9
+  OLED_ssd1306_command(SSD1306_SETPRECHARGE);                  // 0xd9
   if (vccstate == SSD1306_EXTERNALVCC)
-    { Adafruit_SSD1306__ssd1306_command(0x22); }
+    { OLED_ssd1306_command(0x22); }
   else
-    { Adafruit_SSD1306__ssd1306_command(0xF1); }
-  Adafruit_SSD1306__ssd1306_command(SSD1306_SETVCOMDETECT);                 // 0xDB
-  Adafruit_SSD1306__ssd1306_command(0x40);
-  Adafruit_SSD1306__ssd1306_command(SSD1306_DISPLAYALLON_RESUME);           // 0xA4
-  Adafruit_SSD1306__ssd1306_command(SSD1306_NORMALDISPLAY);                 // 0xA6
+    { OLED_ssd1306_command(0xF1); }
+  OLED_ssd1306_command(SSD1306_SETVCOMDETECT);                 // 0xDB
+  OLED_ssd1306_command(0x40);
+  OLED_ssd1306_command(SSD1306_DISPLAYALLON_RESUME);           // 0xA4
+  OLED_ssd1306_command(SSD1306_NORMALDISPLAY);                 // 0xA6
 
-  Adafruit_SSD1306__ssd1306_command(SSD1306_DEACTIVATE_SCROLL);
+  OLED_ssd1306_command(SSD1306_DEACTIVATE_SCROLL);
 
-  Adafruit_SSD1306__ssd1306_command(SSD1306_DISPLAYON);//--turn on oled panel
+  OLED_ssd1306_command(SSD1306_DISPLAYON);//--turn on oled panel
 }
 
 
-void Adafruit_SSD1306__invertDisplay(uint8_t i) {
+void OLED_invertDisplay(uint8_t i) {
   if (i) {
-    Adafruit_SSD1306__ssd1306_command(SSD1306_INVERTDISPLAY);
+    OLED_ssd1306_command(SSD1306_INVERTDISPLAY);
   } else {
-    Adafruit_SSD1306__ssd1306_command(SSD1306_NORMALDISPLAY);
+    OLED_ssd1306_command(SSD1306_NORMALDISPLAY);
   }
 }
 
-void Adafruit_SSD1306__ssd1306_command(uint8_t c) {
+void OLED_ssd1306_command(uint8_t c) {
   if (sid != -1)
   {
     // SPI
@@ -307,74 +307,74 @@ void Adafruit_SSD1306__ssd1306_command(uint8_t c) {
 // Activate a right handed scroll for rows start through stop
 // Hint, the display is 16 rows tall. To scroll the whole display, run:
 // display.scrollright(0x00, 0x0F)
-void Adafruit_SSD1306__startscrollright(uint8_t start, uint8_t stop){
-  Adafruit_SSD1306__ssd1306_command(SSD1306_RIGHT_HORIZONTAL_SCROLL);
-  Adafruit_SSD1306__ssd1306_command(0X00);
-  Adafruit_SSD1306__ssd1306_command(start);
-  Adafruit_SSD1306__ssd1306_command(0X00);
-  Adafruit_SSD1306__ssd1306_command(stop);
-  Adafruit_SSD1306__ssd1306_command(0X00);
-  Adafruit_SSD1306__ssd1306_command(0XFF);
-  Adafruit_SSD1306__ssd1306_command(SSD1306_ACTIVATE_SCROLL);
+void OLED_startscrollright(uint8_t start, uint8_t stop){
+  OLED_ssd1306_command(SSD1306_RIGHT_HORIZONTAL_SCROLL);
+  OLED_ssd1306_command(0X00);
+  OLED_ssd1306_command(start);
+  OLED_ssd1306_command(0X00);
+  OLED_ssd1306_command(stop);
+  OLED_ssd1306_command(0X00);
+  OLED_ssd1306_command(0XFF);
+  OLED_ssd1306_command(SSD1306_ACTIVATE_SCROLL);
 }
 
 // startscrollleft
 // Activate a right handed scroll for rows start through stop
 // Hint, the display is 16 rows tall. To scroll the whole display, run:
 // display.scrollright(0x00, 0x0F)
-void Adafruit_SSD1306__startscrollleft(uint8_t start, uint8_t stop){
-  Adafruit_SSD1306__ssd1306_command(SSD1306_LEFT_HORIZONTAL_SCROLL);
-  Adafruit_SSD1306__ssd1306_command(0X00);
-  Adafruit_SSD1306__ssd1306_command(start);
-  Adafruit_SSD1306__ssd1306_command(0X00);
-  Adafruit_SSD1306__ssd1306_command(stop);
-  Adafruit_SSD1306__ssd1306_command(0X00);
-  Adafruit_SSD1306__ssd1306_command(0XFF);
-  Adafruit_SSD1306__ssd1306_command(SSD1306_ACTIVATE_SCROLL);
+void OLED_startscrollleft(uint8_t start, uint8_t stop){
+  OLED_ssd1306_command(SSD1306_LEFT_HORIZONTAL_SCROLL);
+  OLED_ssd1306_command(0X00);
+  OLED_ssd1306_command(start);
+  OLED_ssd1306_command(0X00);
+  OLED_ssd1306_command(stop);
+  OLED_ssd1306_command(0X00);
+  OLED_ssd1306_command(0XFF);
+  OLED_ssd1306_command(SSD1306_ACTIVATE_SCROLL);
 }
 
 // startscrolldiagright
 // Activate a diagonal scroll for rows start through stop
 // Hint, the display is 16 rows tall. To scroll the whole display, run:
 // display.scrollright(0x00, 0x0F)
-void Adafruit_SSD1306__startscrolldiagright(uint8_t start, uint8_t stop){
-  Adafruit_SSD1306__ssd1306_command(SSD1306_SET_VERTICAL_SCROLL_AREA);
-  Adafruit_SSD1306__ssd1306_command(0X00);
-  Adafruit_SSD1306__ssd1306_command(SSD1306_LCDHEIGHT);
-  Adafruit_SSD1306__ssd1306_command(SSD1306_VERTICAL_AND_RIGHT_HORIZONTAL_SCROLL);
-  Adafruit_SSD1306__ssd1306_command(0X00);
-  Adafruit_SSD1306__ssd1306_command(start);
-  Adafruit_SSD1306__ssd1306_command(0X00);
-  Adafruit_SSD1306__ssd1306_command(stop);
-  Adafruit_SSD1306__ssd1306_command(0X01);
-  Adafruit_SSD1306__ssd1306_command(SSD1306_ACTIVATE_SCROLL);
+void OLED_startscrolldiagright(uint8_t start, uint8_t stop){
+  OLED_ssd1306_command(SSD1306_SET_VERTICAL_SCROLL_AREA);
+  OLED_ssd1306_command(0X00);
+  OLED_ssd1306_command(SSD1306_LCDHEIGHT);
+  OLED_ssd1306_command(SSD1306_VERTICAL_AND_RIGHT_HORIZONTAL_SCROLL);
+  OLED_ssd1306_command(0X00);
+  OLED_ssd1306_command(start);
+  OLED_ssd1306_command(0X00);
+  OLED_ssd1306_command(stop);
+  OLED_ssd1306_command(0X01);
+  OLED_ssd1306_command(SSD1306_ACTIVATE_SCROLL);
 }
 
 // startscrolldiagleft
 // Activate a diagonal scroll for rows start through stop
 // Hint, the display is 16 rows tall. To scroll the whole display, run:
 // display.scrollright(0x00, 0x0F)
-void Adafruit_SSD1306__startscrolldiagleft(uint8_t start, uint8_t stop){
-  Adafruit_SSD1306__ssd1306_command(SSD1306_SET_VERTICAL_SCROLL_AREA);
-  Adafruit_SSD1306__ssd1306_command(0X00);
-  Adafruit_SSD1306__ssd1306_command(SSD1306_LCDHEIGHT);
-  Adafruit_SSD1306__ssd1306_command(SSD1306_VERTICAL_AND_LEFT_HORIZONTAL_SCROLL);
-  Adafruit_SSD1306__ssd1306_command(0X00);
-  Adafruit_SSD1306__ssd1306_command(start);
-  Adafruit_SSD1306__ssd1306_command(0X00);
-  Adafruit_SSD1306__ssd1306_command(stop);
-  Adafruit_SSD1306__ssd1306_command(0X01);
-  Adafruit_SSD1306__ssd1306_command(SSD1306_ACTIVATE_SCROLL);
+void OLED_startscrolldiagleft(uint8_t start, uint8_t stop){
+  OLED_ssd1306_command(SSD1306_SET_VERTICAL_SCROLL_AREA);
+  OLED_ssd1306_command(0X00);
+  OLED_ssd1306_command(SSD1306_LCDHEIGHT);
+  OLED_ssd1306_command(SSD1306_VERTICAL_AND_LEFT_HORIZONTAL_SCROLL);
+  OLED_ssd1306_command(0X00);
+  OLED_ssd1306_command(start);
+  OLED_ssd1306_command(0X00);
+  OLED_ssd1306_command(stop);
+  OLED_ssd1306_command(0X01);
+  OLED_ssd1306_command(SSD1306_ACTIVATE_SCROLL);
 }
 
-void Adafruit_SSD1306__stopscroll(void) {
-  Adafruit_SSD1306__ssd1306_command(SSD1306_DEACTIVATE_SCROLL);
+void OLED_stopscroll(void) {
+  OLED_ssd1306_command(SSD1306_DEACTIVATE_SCROLL);
 }
 
 // Dim the display
 // dim = true: display is dimmed
 // dim = false: display is normal
-void Adafruit_SSD1306__dim(bool dim) {
+void OLED_dim(bool dim) {
   uint8_t contrast;
 
   if (dim) {
@@ -388,25 +388,25 @@ void Adafruit_SSD1306__dim(bool dim) {
   }
   // the range of contrast to too small to be really useful
   // it is useful to dim the display
-  Adafruit_SSD1306__ssd1306_command(SSD1306_SETCONTRAST);
-  Adafruit_SSD1306__ssd1306_command(contrast);
+  OLED_ssd1306_command(SSD1306_SETCONTRAST);
+  OLED_ssd1306_command(contrast);
 }
 
-void Adafruit_SSD1306__display(void) {
-  Adafruit_SSD1306__ssd1306_command(SSD1306_COLUMNADDR);
-  Adafruit_SSD1306__ssd1306_command(0);   // Column start address (0 = reset)
-  Adafruit_SSD1306__ssd1306_command(SSD1306_LCDWIDTH-1); // Column end address (127 = reset)
+void OLED_display(void) {
+  OLED_ssd1306_command(SSD1306_COLUMNADDR);
+  OLED_ssd1306_command(0);   // Column start address (0 = reset)
+  OLED_ssd1306_command(SSD1306_LCDWIDTH-1); // Column end address (127 = reset)
 
-  Adafruit_SSD1306__ssd1306_command(SSD1306_PAGEADDR);
-  Adafruit_SSD1306__ssd1306_command(0); // Page start address (0 = reset)
+  OLED_ssd1306_command(SSD1306_PAGEADDR);
+  OLED_ssd1306_command(0); // Page start address (0 = reset)
   #if SSD1306_LCDHEIGHT == 64
-    Adafruit_SSD1306__ssd1306_command(7); // Page end address
+    OLED_ssd1306_command(7); // Page end address
   #endif
   #if SSD1306_LCDHEIGHT == 32
-    Adafruit_SSD1306__ssd1306_command(3); // Page end address
+    OLED_ssd1306_command(3); // Page end address
   #endif
   #if SSD1306_LCDHEIGHT == 16
-    Adafruit_SSD1306__ssd1306_command(1); // Page end address
+    OLED_ssd1306_command(1); // Page end address
   #endif
 
   if (sid != -1)
@@ -461,11 +461,11 @@ void Adafruit_SSD1306__display(void) {
 }
 
 // clear everything
-void Adafruit_SSD1306__clearDisplay(void) {
+void OLED_clearDisplay(void) {
   memset(buffer, 0, (SSD1306_LCDWIDTH*SSD1306_LCDHEIGHT/8));
 }
 
-void Adafruit_SSD1306__drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color) {
+void OLED_drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color) {
   bool bSwap = false;
   switch(_rotation) {
     case 0:
@@ -493,13 +493,13 @@ void Adafruit_SSD1306__drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t c
   }
 
   if(bSwap) {
-    Adafruit_SSD1306__drawFastVLineInternal(x, y, w, color);
+    OLED_drawFastVLineInternal(x, y, w, color);
   } else {
-    Adafruit_SSD1306__drawFastHLineInternal(x, y, w, color);
+    OLED_drawFastHLineInternal(x, y, w, color);
   }
 }
 
-static void Adafruit_SSD1306__drawFastHLineInternal(int16_t x, int16_t y, int16_t w, uint16_t color) {
+static void OLED_drawFastHLineInternal(int16_t x, int16_t y, int16_t w, uint16_t color) {
   // Do bounds/limit checks
   if(y < 0 || y >= _physHeight) { return; }
 
@@ -534,7 +534,7 @@ static void Adafruit_SSD1306__drawFastHLineInternal(int16_t x, int16_t y, int16_
   }
 }
 
-void Adafruit_SSD1306__drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color) {
+void OLED_drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color) {
   bool bSwap = false;
   switch(_rotation) {
     case 0:
@@ -561,14 +561,14 @@ void Adafruit_SSD1306__drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t c
   }
 
   if(bSwap) {
-    Adafruit_SSD1306__drawFastHLineInternal(x, y, h, color);
+    OLED_drawFastHLineInternal(x, y, h, color);
   } else {
-    Adafruit_SSD1306__drawFastVLineInternal(x, y, h, color);
+    OLED_drawFastVLineInternal(x, y, h, color);
   }
 }
 
 
-static void Adafruit_SSD1306__drawFastVLineInternal(int16_t x, int16_t __y, int16_t __h, uint16_t color) {
+static void OLED_drawFastVLineInternal(int16_t x, int16_t __y, int16_t __h, uint16_t color) {
 
   // do nothing if we're off the left or right side of the screen
   if(x < 0 || x >= _physWidth) { return; }

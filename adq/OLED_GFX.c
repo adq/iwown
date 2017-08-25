@@ -31,14 +31,6 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Adafruit_GFX.h"
-#include "glcdfont.c"
-#ifdef __AVR__
-  #include <avr/pgmspace.h>
-#elif defined(ESP8266) || defined(ESP32)
-  #include <pgmspace.h>
-#endif
-
 // Many (but maybe not all) non-AVR board installs define macros
 // for compatibility with existing PROGMEM-reading AVR code.
 // Do our own checks and defines here for good measure...
@@ -70,7 +62,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #define _swap_int16_t(a, b) { int16_t t = a; a = b; b = t; }
 #endif
 
-Adafruit_GFX::Adafruit_GFX(int16_t w, int16_t h):
+OLED_Adafruit_GFX(int16_t w, int16_t h):
 WIDTH(w), HEIGHT(h)
 {
     _width    = WIDTH;
@@ -85,7 +77,7 @@ WIDTH(w), HEIGHT(h)
 }
 
 // Bresenham's algorithm - thx wikpedia
-void Adafruit_GFX::writeLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
+void OLED_writeLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
         uint16_t color) {
     int16_t steep = abs(y1 - y0) > abs(x1 - x0);
     if (steep) {
@@ -125,18 +117,18 @@ void Adafruit_GFX::writeLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
     }
 }
 
-void Adafruit_GFX::startWrite(){
+void OLED_startWrite(){
     // Overwrite in subclasses if desired!
 }
 
-void Adafruit_GFX::writePixel(int16_t x, int16_t y, uint16_t color){
+void OLED_writePixel(int16_t x, int16_t y, uint16_t color){
     // Overwrite in subclasses if startWrite is defined!
     drawPixel(x, y, color);
 }
 
 // (x,y) is topmost point; if unsure, calling function
 // should sort endpoints or call writeLine() instead
-void Adafruit_GFX::writeFastVLine(int16_t x, int16_t y,
+void OLED_writeFastVLine(int16_t x, int16_t y,
         int16_t h, uint16_t color) {
     // Overwrite in subclasses if startWrite is defined!
     // Can be just writeLine(x, y, x, y+h-1, color);
@@ -146,7 +138,7 @@ void Adafruit_GFX::writeFastVLine(int16_t x, int16_t y,
 
 // (x,y) is leftmost point; if unsure, calling function
 // should sort endpoints or call writeLine() instead
-void Adafruit_GFX::writeFastHLine(int16_t x, int16_t y,
+void OLED_writeFastHLine(int16_t x, int16_t y,
         int16_t w, uint16_t color) {
     // Overwrite in subclasses if startWrite is defined!
     // Example: writeLine(x, y, x+w-1, y, color);
@@ -154,19 +146,19 @@ void Adafruit_GFX::writeFastHLine(int16_t x, int16_t y,
     drawFastHLine(x, y, w, color);
 }
 
-void Adafruit_GFX::writeFillRect(int16_t x, int16_t y, int16_t w, int16_t h,
+void OLED_writeFillRect(int16_t x, int16_t y, int16_t w, int16_t h,
         uint16_t color) {
     // Overwrite in subclasses if desired!
     fillRect(x,y,w,h,color);
 }
 
-void Adafruit_GFX::endWrite(){
+void OLED_endWrite(){
     // Overwrite in subclasses if startWrite is defined!
 }
 
 // (x,y) is topmost point; if unsure, calling function
 // should sort endpoints or call drawLine() instead
-void Adafruit_GFX::drawFastVLine(int16_t x, int16_t y,
+void OLED_drawFastVLine(int16_t x, int16_t y,
         int16_t h, uint16_t color) {
     // Update in subclasses if desired!
     startWrite();
@@ -176,7 +168,7 @@ void Adafruit_GFX::drawFastVLine(int16_t x, int16_t y,
 
 // (x,y) is leftmost point; if unsure, calling function
 // should sort endpoints or call drawLine() instead
-void Adafruit_GFX::drawFastHLine(int16_t x, int16_t y,
+void OLED_drawFastHLine(int16_t x, int16_t y,
         int16_t w, uint16_t color) {
     // Update in subclasses if desired!
     startWrite();
@@ -184,7 +176,7 @@ void Adafruit_GFX::drawFastHLine(int16_t x, int16_t y,
     endWrite();
 }
 
-void Adafruit_GFX::fillRect(int16_t x, int16_t y, int16_t w, int16_t h,
+void OLED_fillRect(int16_t x, int16_t y, int16_t w, int16_t h,
         uint16_t color) {
     // Update in subclasses if desired!
     startWrite();
@@ -194,12 +186,12 @@ void Adafruit_GFX::fillRect(int16_t x, int16_t y, int16_t w, int16_t h,
     endWrite();
 }
 
-void Adafruit_GFX::fillScreen(uint16_t color) {
+void OLED_fillScreen(uint16_t color) {
     // Update in subclasses if desired!
     fillRect(0, 0, _width, _height, color);
 }
 
-void Adafruit_GFX::drawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
+void OLED_drawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
         uint16_t color) {
     // Update in subclasses if desired!
     if(x0 == x1){
@@ -216,7 +208,7 @@ void Adafruit_GFX::drawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
 }
 
 // Draw a circle outline
-void Adafruit_GFX::drawCircle(int16_t x0, int16_t y0, int16_t r,
+void OLED_drawCircle(int16_t x0, int16_t y0, int16_t r,
         uint16_t color) {
     int16_t f = 1 - r;
     int16_t ddF_x = 1;
@@ -252,7 +244,7 @@ void Adafruit_GFX::drawCircle(int16_t x0, int16_t y0, int16_t r,
     endWrite();
 }
 
-void Adafruit_GFX::drawCircleHelper( int16_t x0, int16_t y0,
+void OLED_drawCircleHelper( int16_t x0, int16_t y0,
         int16_t r, uint8_t cornername, uint16_t color) {
     int16_t f     = 1 - r;
     int16_t ddF_x = 1;
@@ -288,7 +280,7 @@ void Adafruit_GFX::drawCircleHelper( int16_t x0, int16_t y0,
     }
 }
 
-void Adafruit_GFX::fillCircle(int16_t x0, int16_t y0, int16_t r,
+void OLED_fillCircle(int16_t x0, int16_t y0, int16_t r,
         uint16_t color) {
     startWrite();
     writeFastVLine(x0, y0-r, 2*r+1, color);
@@ -297,7 +289,7 @@ void Adafruit_GFX::fillCircle(int16_t x0, int16_t y0, int16_t r,
 }
 
 // Used to do circles and roundrects
-void Adafruit_GFX::fillCircleHelper(int16_t x0, int16_t y0, int16_t r,
+void OLED_fillCircleHelper(int16_t x0, int16_t y0, int16_t r,
         uint8_t cornername, int16_t delta, uint16_t color) {
 
     int16_t f     = 1 - r;
@@ -328,7 +320,7 @@ void Adafruit_GFX::fillCircleHelper(int16_t x0, int16_t y0, int16_t r,
 }
 
 // Draw a rectangle
-void Adafruit_GFX::drawRect(int16_t x, int16_t y, int16_t w, int16_t h,
+void OLED_drawRect(int16_t x, int16_t y, int16_t w, int16_t h,
         uint16_t color) {
     startWrite();
     writeFastHLine(x, y, w, color);
@@ -339,7 +331,7 @@ void Adafruit_GFX::drawRect(int16_t x, int16_t y, int16_t w, int16_t h,
 }
 
 // Draw a rounded rectangle
-void Adafruit_GFX::drawRoundRect(int16_t x, int16_t y, int16_t w,
+void OLED_drawRoundRect(int16_t x, int16_t y, int16_t w,
         int16_t h, int16_t r, uint16_t color) {
     // smarter version
     startWrite();
@@ -356,7 +348,7 @@ void Adafruit_GFX::drawRoundRect(int16_t x, int16_t y, int16_t w,
 }
 
 // Fill a rounded rectangle
-void Adafruit_GFX::fillRoundRect(int16_t x, int16_t y, int16_t w,
+void OLED_fillRoundRect(int16_t x, int16_t y, int16_t w,
         int16_t h, int16_t r, uint16_t color) {
     // smarter version
     startWrite();
@@ -369,7 +361,7 @@ void Adafruit_GFX::fillRoundRect(int16_t x, int16_t y, int16_t w,
 }
 
 // Draw a triangle
-void Adafruit_GFX::drawTriangle(int16_t x0, int16_t y0,
+void OLED_drawTriangle(int16_t x0, int16_t y0,
         int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t color) {
     drawLine(x0, y0, x1, y1, color);
     drawLine(x1, y1, x2, y2, color);
@@ -377,7 +369,7 @@ void Adafruit_GFX::drawTriangle(int16_t x0, int16_t y0,
 }
 
 // Fill a triangle
-void Adafruit_GFX::fillTriangle(int16_t x0, int16_t y0,
+void OLED_fillTriangle(int16_t x0, int16_t y0,
         int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t color) {
 
     int16_t a, b, y, last;
@@ -461,7 +453,7 @@ void Adafruit_GFX::fillTriangle(int16_t x0, int16_t y0,
 
 // Draw a PROGMEM-resident 1-bit image at the specified (x,y) position,
 // using the specified foreground color (unset bits are transparent).
-void Adafruit_GFX::drawBitmap(int16_t x, int16_t y,
+void OLED_drawBitmap(int16_t x, int16_t y,
   const uint8_t bitmap[], int16_t w, int16_t h, uint16_t color) {
 
     int16_t byteWidth = (w + 7) / 8; // Bitmap scanline pad = whole byte
@@ -481,7 +473,7 @@ void Adafruit_GFX::drawBitmap(int16_t x, int16_t y,
 // Draw a PROGMEM-resident 1-bit image at the specified (x,y) position,
 // using the specified foreground (for set bits) and background (unset
 // bits) colors.
-void Adafruit_GFX::drawBitmap(int16_t x, int16_t y,
+void OLED_drawBitmap(int16_t x, int16_t y,
   const uint8_t bitmap[], int16_t w, int16_t h,
   uint16_t color, uint16_t bg) {
 
@@ -501,7 +493,7 @@ void Adafruit_GFX::drawBitmap(int16_t x, int16_t y,
 
 // Draw a RAM-resident 1-bit image at the specified (x,y) position,
 // using the specified foreground color (unset bits are transparent).
-void Adafruit_GFX::drawBitmap(int16_t x, int16_t y,
+void OLED_drawBitmap(int16_t x, int16_t y,
   uint8_t *bitmap, int16_t w, int16_t h, uint16_t color) {
 
     int16_t byteWidth = (w + 7) / 8; // Bitmap scanline pad = whole byte
@@ -521,7 +513,7 @@ void Adafruit_GFX::drawBitmap(int16_t x, int16_t y,
 // Draw a RAM-resident 1-bit image at the specified (x,y) position,
 // using the specified foreground (for set bits) and background (unset
 // bits) colors.
-void Adafruit_GFX::drawBitmap(int16_t x, int16_t y,
+void OLED_drawBitmap(int16_t x, int16_t y,
   uint8_t *bitmap, int16_t w, int16_t h, uint16_t color, uint16_t bg) {
 
     int16_t byteWidth = (w + 7) / 8; // Bitmap scanline pad = whole byte
@@ -543,7 +535,7 @@ void Adafruit_GFX::drawBitmap(int16_t x, int16_t y,
 // C Array can be directly used with this function.
 // There is no RAM-resident version of this function; if generating bitmaps
 // in RAM, use the format defined by drawBitmap() and call that instead.
-void Adafruit_GFX::drawXBitmap(int16_t x, int16_t y,
+void OLED_drawXBitmap(int16_t x, int16_t y,
   const uint8_t bitmap[], int16_t w, int16_t h, uint16_t color) {
 
     int16_t byteWidth = (w + 7) / 8; // Bitmap scanline pad = whole byte
@@ -565,7 +557,7 @@ void Adafruit_GFX::drawXBitmap(int16_t x, int16_t y,
 // Draw a PROGMEM-resident 8-bit image (grayscale) at the specified (x,y)
 // pos.  Specifically for 8-bit display devices such as IS31FL3731;
 // no color reduction/expansion is performed.
-void Adafruit_GFX::drawGrayscaleBitmap(int16_t x, int16_t y,
+void OLED_drawGrayscaleBitmap(int16_t x, int16_t y,
   const uint8_t bitmap[], int16_t w, int16_t h) {
     startWrite();
     for(int16_t j=0; j<h; j++, y++) {
@@ -579,7 +571,7 @@ void Adafruit_GFX::drawGrayscaleBitmap(int16_t x, int16_t y,
 // Draw a RAM-resident 8-bit image (grayscale) at the specified (x,y)
 // pos.  Specifically for 8-bit display devices such as IS31FL3731;
 // no color reduction/expansion is performed.
-void Adafruit_GFX::drawGrayscaleBitmap(int16_t x, int16_t y,
+void OLED_drawGrayscaleBitmap(int16_t x, int16_t y,
   uint8_t *bitmap, int16_t w, int16_t h) {
     startWrite();
     for(int16_t j=0; j<h; j++, y++) {
@@ -595,7 +587,7 @@ void Adafruit_GFX::drawGrayscaleBitmap(int16_t x, int16_t y,
 // BOTH buffers (grayscale and mask) must be PROGMEM-resident.
 // Specifically for 8-bit display devices such as IS31FL3731;
 // no color reduction/expansion is performed.
-void Adafruit_GFX::drawGrayscaleBitmap(int16_t x, int16_t y,
+void OLED_drawGrayscaleBitmap(int16_t x, int16_t y,
   const uint8_t bitmap[], const uint8_t mask[],
   int16_t w, int16_t h) {
     int16_t bw   = (w + 7) / 8; // Bitmask scanline pad = whole byte
@@ -618,7 +610,7 @@ void Adafruit_GFX::drawGrayscaleBitmap(int16_t x, int16_t y,
 // BOTH buffers (grayscale and mask) must be RAM-resident, no mix-and-
 // match.  Specifically for 8-bit display devices such as IS31FL3731;
 // no color reduction/expansion is performed.
-void Adafruit_GFX::drawGrayscaleBitmap(int16_t x, int16_t y,
+void OLED_drawGrayscaleBitmap(int16_t x, int16_t y,
   uint8_t *bitmap, uint8_t *mask, int16_t w, int16_t h) {
     int16_t bw   = (w + 7) / 8; // Bitmask scanline pad = whole byte
     uint8_t byte = 0;
@@ -637,7 +629,7 @@ void Adafruit_GFX::drawGrayscaleBitmap(int16_t x, int16_t y,
 
 // Draw a PROGMEM-resident 16-bit image (RGB 5/6/5) at the specified (x,y)
 // position.  For 16-bit display devices; no color reduction performed.
-void Adafruit_GFX::drawRGBBitmap(int16_t x, int16_t y,
+void OLED_drawRGBBitmap(int16_t x, int16_t y,
   const uint16_t bitmap[], int16_t w, int16_t h) {
     startWrite();
     for(int16_t j=0; j<h; j++, y++) {
@@ -650,7 +642,7 @@ void Adafruit_GFX::drawRGBBitmap(int16_t x, int16_t y,
 
 // Draw a RAM-resident 16-bit image (RGB 5/6/5) at the specified (x,y)
 // position.  For 16-bit display devices; no color reduction performed.
-void Adafruit_GFX::drawRGBBitmap(int16_t x, int16_t y,
+void OLED_drawRGBBitmap(int16_t x, int16_t y,
   uint16_t *bitmap, int16_t w, int16_t h) {
     startWrite();
     for(int16_t j=0; j<h; j++, y++) {
@@ -665,7 +657,7 @@ void Adafruit_GFX::drawRGBBitmap(int16_t x, int16_t y,
 // (set bits = opaque, unset bits = clear) at the specified (x,y) position.
 // BOTH buffers (color and mask) must be PROGMEM-resident.
 // For 16-bit display devices; no color reduction performed.
-void Adafruit_GFX::drawRGBBitmap(int16_t x, int16_t y,
+void OLED_drawRGBBitmap(int16_t x, int16_t y,
   const uint16_t bitmap[], const uint8_t mask[],
   int16_t w, int16_t h) {
     int16_t bw   = (w + 7) / 8; // Bitmask scanline pad = whole byte
@@ -687,7 +679,7 @@ void Adafruit_GFX::drawRGBBitmap(int16_t x, int16_t y,
 // (set bits = opaque, unset bits = clear) at the specified (x,y) pos.
 // BOTH buffers (color and mask) must be RAM-resident, no mix-and-match.
 // For 16-bit display devices; no color reduction performed.
-void Adafruit_GFX::drawRGBBitmap(int16_t x, int16_t y,
+void OLED_drawRGBBitmap(int16_t x, int16_t y,
   uint16_t *bitmap, uint8_t *mask, int16_t w, int16_t h) {
     int16_t bw   = (w + 7) / 8; // Bitmask scanline pad = whole byte
     uint8_t byte = 0;
@@ -707,7 +699,7 @@ void Adafruit_GFX::drawRGBBitmap(int16_t x, int16_t y,
 // TEXT- AND CHARACTER-HANDLING FUNCTIONS ----------------------------------
 
 // Draw a character
-void Adafruit_GFX::drawChar(int16_t x, int16_t y, unsigned char c,
+void OLED_drawChar(int16_t x, int16_t y, unsigned char c,
   uint16_t color, uint16_t bg, uint8_t size) {
 
     if(!gfxFont) { // 'Classic' built-in font
@@ -807,9 +799,9 @@ void Adafruit_GFX::drawChar(int16_t x, int16_t y, unsigned char c,
 }
 
 #if ARDUINO >= 100
-size_t Adafruit_GFX::write(uint8_t c) {
+size_t OLED_write(uint8_t c) {
 #else
-void Adafruit_GFX::write(uint8_t c) {
+void OLED_write(uint8_t c) {
 #endif
     if(!gfxFont) { // 'Classic' built-in font
 
@@ -857,43 +849,43 @@ void Adafruit_GFX::write(uint8_t c) {
 #endif
 }
 
-void Adafruit_GFX::setCursor(int16_t x, int16_t y) {
+void OLED_setCursor(int16_t x, int16_t y) {
     cursor_x = x;
     cursor_y = y;
 }
 
-int16_t Adafruit_GFX::getCursorX(void) const {
+int16_t OLED_getCursorX(void) const {
     return cursor_x;
 }
 
-int16_t Adafruit_GFX::getCursorY(void) const {
+int16_t OLED_getCursorY(void) const {
     return cursor_y;
 }
 
-void Adafruit_GFX::setTextSize(uint8_t s) {
+void OLED_setTextSize(uint8_t s) {
     textsize = (s > 0) ? s : 1;
 }
 
-void Adafruit_GFX::setTextColor(uint16_t c) {
+void OLED_setTextColor(uint16_t c) {
     // For 'transparent' background, we'll set the bg
     // to the same as fg instead of using a flag
     textcolor = textbgcolor = c;
 }
 
-void Adafruit_GFX::setTextColor(uint16_t c, uint16_t b) {
+void OLED_setTextColor(uint16_t c, uint16_t b) {
     textcolor   = c;
     textbgcolor = b;
 }
 
-void Adafruit_GFX::setTextWrap(boolean w) {
+void OLED_setTextWrap(boolean w) {
     wrap = w;
 }
 
-uint8_t Adafruit_GFX::getRotation(void) const {
+uint8_t OLED_getRotation(void) const {
     return rotation;
 }
 
-void Adafruit_GFX::setRotation(uint8_t x) {
+void OLED_setRotation(uint8_t x) {
     rotation = (x & 3);
     switch(rotation) {
         case 0:
@@ -916,11 +908,11 @@ void Adafruit_GFX::setRotation(uint8_t x) {
 // with the erroneous character indices.  By default, the library uses the
 // original 'wrong' behavior and old sketches will still work.  Pass 'true'
 // to this function to use correct CP437 character values in your code.
-void Adafruit_GFX::cp437(boolean x) {
+void OLED_cp437(boolean x) {
     _cp437 = x;
 }
 
-void Adafruit_GFX::setFont(const GFXfont *f) {
+void OLED_setFont(const GFXfont *f) {
     if(f) {            // Font struct pointer passed in?
         if(!gfxFont) { // And no current font struct?
             // Switching from classic to new font behavior.
@@ -937,7 +929,7 @@ void Adafruit_GFX::setFont(const GFXfont *f) {
 
 // Broke this out as it's used by both the PROGMEM- and RAM-resident
 // getTextBounds() functions.
-void Adafruit_GFX::charBounds(char c, int16_t *x, int16_t *y,
+void OLED_charBounds(char c, int16_t *x, int16_t *y,
   int16_t *minx, int16_t *miny, int16_t *maxx, int16_t *maxy) {
 
     if(gfxFont) {
@@ -996,7 +988,7 @@ void Adafruit_GFX::charBounds(char c, int16_t *x, int16_t *y,
 }
 
 // Pass string and a cursor position, returns UL corner and W,H.
-void Adafruit_GFX::getTextBounds(char *str, int16_t x, int16_t y,
+void OLED_getTextBounds(char *str, int16_t x, int16_t y,
         int16_t *x1, int16_t *y1, uint16_t *w, uint16_t *h) {
     uint8_t c; // Current character
 
@@ -1020,7 +1012,7 @@ void Adafruit_GFX::getTextBounds(char *str, int16_t x, int16_t y,
 }
 
 // Same as above, but for PROGMEM strings
-void Adafruit_GFX::getTextBounds(const __FlashStringHelper *str,
+void OLED_getTextBounds(const __FlashStringHelper *str,
         int16_t x, int16_t y, int16_t *x1, int16_t *y1, uint16_t *w, uint16_t *h) {
     uint8_t *s = (uint8_t *)str, c;
 
@@ -1041,17 +1033,4 @@ void Adafruit_GFX::getTextBounds(const __FlashStringHelper *str,
         *y1 = miny;
         *h  = maxy - miny + 1;
     }
-}
-
-// Return the size of the display (per current rotation)
-int16_t Adafruit_GFX::width(void) const {
-    return _width;
-}
-
-int16_t Adafruit_GFX::height(void) const {
-    return _height;
-}
-
-void Adafruit_GFX::invertDisplay(boolean i) {
-    // Do nothing, must be subclassed if supported by hardware
 }

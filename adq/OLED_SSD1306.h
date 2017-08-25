@@ -15,10 +15,10 @@ Written by Limor Fried/Ladyada  for Adafruit Industries.
 BSD license, check license.txt for more information
 All text above, and the splash screen must be included in any redistribution
 *********************************************************************/
-#ifndef _Adafruit_SSD1306_H_
-#define _Adafruit_SSD1306_H_
+#ifndef _OLED__SSD1306_H_
+#define _OLED__SSD1306_H_
 
-// #include <Adafruit_GFX.h>
+// #include <OLED_GFX.h>
 
 #define BLACK 0
 #define WHITE 1
@@ -113,25 +113,25 @@ All text above, and the splash screen must be included in any redistribution
 #define SSD1306_VERTICAL_AND_RIGHT_HORIZONTAL_SCROLL 0x29
 #define SSD1306_VERTICAL_AND_LEFT_HORIZONTAL_SCROLL 0x2A
 
-void Adafruit_SSD1306__begin(uint8_t switchvcc, uint8_t i2caddr, bool reset);
-void Adafruit_SSD1306__ssd1306_command(uint8_t c);
+void OLED_begin(uint8_t switchvcc, uint8_t i2caddr, bool reset);
+void OLED_ssd1306_command(uint8_t c);
 
-void Adafruit_SSD1306__clearDisplay(void);
-void Adafruit_SSD1306__invertDisplay(uint8_t i);
-void Adafruit_SSD1306__display();
+void OLED_clearDisplay(void);
+void OLED_invertDisplay(uint8_t i);
+void OLED_display();
 
-void Adafruit_SSD1306__startscrollright(uint8_t start, uint8_t stop);
-void Adafruit_SSD1306__startscrollleft(uint8_t start, uint8_t stop);
+void OLED_startscrollright(uint8_t start, uint8_t stop);
+void OLED_startscrollleft(uint8_t start, uint8_t stop);
 
-void Adafruit_SSD1306__startscrolldiagright(uint8_t start, uint8_t stop);
-void Adafruit_SSD1306__startscrolldiagleft(uint8_t start, uint8_t stop);
-void Adafruit_SSD1306__stopscroll(void);
+void OLED_startscrolldiagright(uint8_t start, uint8_t stop);
+void OLED_startscrolldiagleft(uint8_t start, uint8_t stop);
+void OLED_stopscroll(void);
 
-void Adafruit_SSD1306__dim(bool dim);
+void OLED_dim(bool dim);
 
-void Adafruit_SSD1306__drawPixel(int16_t x, int16_t y, uint16_t color);
+void OLED_drawPixel(int16_t x, int16_t y, uint16_t color);
 
-void Adafruit_SSD1306__drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color);
-void Adafruit_SSD1306__drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color);
+void OLED_drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color);
+void OLED_drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color);
 
-#endif /* _Adafruit_SSD1306_H_ */
+#endif /* _OLED__SSD1306_H_ */
