@@ -16,13 +16,11 @@ BSD license, check license.txt for more information
 All text above, and the splash screen below must be included in any redistribution
 *********************************************************************/
 
-#define pgm_read_byte(addr) (*(const unsigned char *)(addr))
-
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-// #include "OLED_GFX.h"
+#include "OLED_GFX.h"
 #include "OLED_SSD1306.h"
 
 // the memory buffer for the LCD
@@ -100,12 +98,6 @@ static uint8_t buffer[SSD1306_LCDHEIGHT * SSD1306_LCDWIDTH / 8] = {
 
 #define ssd1306_swap(a, b) { int16_t t = a; a = b; b = t; }
 
-static uint32_t _physWidth;
-static uint32_t _physHeight;
-static uint32_t _curWidth;
-static uint32_t _curHeight;
-// static uint8_t _textsize;
-static uint8_t _rotation;
 
 static void OLED_drawFastVLineInternal(int16_t x, int16_t __y, int16_t __h, uint16_t color);
 static void OLED_drawFastHLineInternal(int16_t x, int16_t y, int16_t w, uint16_t color);
@@ -113,22 +105,22 @@ static void OLED_drawFastHLineInternal(int16_t x, int16_t y, int16_t w, uint16_t
 
 // the most basic function, set a single pixel
 void OLED_drawPixel(int16_t x, int16_t y, uint16_t color) {
-  if ((x < 0) || (x >= _curWidth) || (y < 0) || (y >= _curHeight))
+  if ((x < 0) || (x >= OLED_curWidth) || (y < 0) || (y >= OLED_curHeight))
     return;
 
   // check rotation, move pixel around if necessary
-  switch (_rotation) {
+  switch (OLED_rotation) {
   case 1:
     ssd1306_swap(x, y);
-    x = _physWidth - x - 1;
+    x = OLED_physWidth - x - 1;
     break;
   case 2:
-    x = _physWidth - x - 1;
-    y = _physHeight - y - 1;
+    x = OLED_physWidth - x - 1;
+    y = OLED_physHeight - y - 1;
     break;
   case 3:
     ssd1306_swap(x, y);
-    y = _physHeight - y - 1;
+    y = OLED_physHeight - y - 1;
     break;
   }
 
@@ -467,7 +459,7 @@ void OLED_clearDisplay(void) {
 
 void OLED_drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color) {
   bool bSwap = false;
-  switch(_rotation) {
+  switch(OLED_rotation) {
     case 0:
       // 0 degree rotation, do nothing
       break;
@@ -475,19 +467,19 @@ void OLED_drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color) {
       // 90 degree rotation, swap x & y for rotation, then invert x
       bSwap = true;
       ssd1306_swap(x, y);
-      x = _physWidth - x - 1;
+      x = OLED_physWidth - x - 1;
       break;
     case 2:
       // 180 degree rotation, invert x and y - then shift y around for height.
-      x = _physWidth - x - 1;
-      y = _physHeight - y - 1;
+      x = OLED_physWidth - x - 1;
+      y = OLED_physHeight - y - 1;
       x -= (w-1);
       break;
     case 3:
       // 270 degree rotation, swap x & y for rotation, then invert y  and adjust y for w (not to become h)
       bSwap = true;
       ssd1306_swap(x, y);
-      y = _physHeight - y - 1;
+      y = OLED_physHeight - y - 1;
       y -= (w-1);
       break;
   }
@@ -501,7 +493,7 @@ void OLED_drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color) {
 
 static void OLED_drawFastHLineInternal(int16_t x, int16_t y, int16_t w, uint16_t color) {
   // Do bounds/limit checks
-  if(y < 0 || y >= _physHeight) { return; }
+  if(y < 0 || y >= OLED_physHeight) { return; }
 
   // make sure we don't try to draw below 0
   if(x < 0) {
@@ -510,8 +502,8 @@ static void OLED_drawFastHLineInternal(int16_t x, int16_t y, int16_t w, uint16_t
   }
 
   // make sure we don't go off the edge of the display
-  if( (x + w) > _physWidth) {
-    w = (_physWidth - x);
+  if( (x + w) > OLED_physWidth) {
+    w = (OLED_physWidth - x);
   }
 
   // if our width is now negative, punt
@@ -536,27 +528,27 @@ static void OLED_drawFastHLineInternal(int16_t x, int16_t y, int16_t w, uint16_t
 
 void OLED_drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color) {
   bool bSwap = false;
-  switch(_rotation) {
+  switch(OLED_rotation) {
     case 0:
       break;
     case 1:
       // 90 degree rotation, swap x & y for rotation, then invert x and adjust x for h (now to become w)
       bSwap = true;
       ssd1306_swap(x, y);
-      x = _physWidth - x - 1;
+      x = OLED_physWidth - x - 1;
       x -= (h-1);
       break;
     case 2:
       // 180 degree rotation, invert x and y - then shift y around for height.
-      x = _physWidth - x - 1;
-      y = _physHeight - y - 1;
+      x = OLED_physWidth - x - 1;
+      y = OLED_physHeight - y - 1;
       y -= (h-1);
       break;
     case 3:
       // 270 degree rotation, swap x & y for rotation, then invert y
       bSwap = true;
       ssd1306_swap(x, y);
-      y = _physHeight - y - 1;
+      y = OLED_physHeight - y - 1;
       break;
   }
 
@@ -571,7 +563,7 @@ void OLED_drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color) {
 static void OLED_drawFastVLineInternal(int16_t x, int16_t __y, int16_t __h, uint16_t color) {
 
   // do nothing if we're off the left or right side of the screen
-  if(x < 0 || x >= _physWidth) { return; }
+  if(x < 0 || x >= OLED_physWidth) { return; }
 
   // make sure we don't try to draw below 0
   if(__y < 0) {
@@ -582,8 +574,8 @@ static void OLED_drawFastVLineInternal(int16_t x, int16_t __y, int16_t __h, uint
   }
 
   // make sure we don't go past the height of the display
-  if( (__y + __h) > _physHeight) {
-    __h = (_physHeight - __y);
+  if( (__y + __h) > OLED_physHeight) {
+    __h = (OLED_physHeight - __y);
   }
 
   // if our height is now negative, punt

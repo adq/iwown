@@ -31,9 +31,11 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
  */
 
-// Many (but maybe not all) non-AVR board installs define macros
-// for compatibility with existing PROGMEM-reading AVR code.
-// Do our own checks and defines here for good measure...
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "OLED_GFX.h"
 
 #ifndef pgm_read_byte
  #define pgm_read_byte(addr) (*(const unsigned char *)(addr))
@@ -62,19 +64,27 @@ POSSIBILITY OF SUCH DAMAGE.
 #define _swap_int16_t(a, b) { int16_t t = a; a = b; b = t; }
 #endif
 
+uint32_t OLED_physWidth;
+uint32_t OLED_physHeight;
+uint32_t OLED_curWidth;
+uint32_t OLED_curHeight;
+uint8_t OLED_textsize = 1;
+uint8_t OLED_rotation = 0;
+
+/*
 OLED_Adafruit_GFX(int16_t w, int16_t h):
 WIDTH(w), HEIGHT(h)
 {
-    _width    = WIDTH;
-    _height   = HEIGHT;
-    rotation  = 0;
+    // _width    = WIDTH;
+    // _height   = HEIGHT;
+    // rotation  = 0;
     cursor_y  = cursor_x    = 0;
-    textsize  = 1;
+    // textsize  = 1;
     textcolor = textbgcolor = 0xFFFF;
     wrap      = true;
-    _cp437    = false;
     gfxFont   = NULL;
 }
+*/
 
 // Bresenham's algorithm - thx wikpedia
 void OLED_writeLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
@@ -105,9 +115,9 @@ void OLED_writeLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
 
     for (; x0<=x1; x0++) {
         if (steep) {
-            writePixel(y0, x0, color);
+            OLED_drawPixel(y0, x0, color);
         } else {
-            writePixel(x0, y0, color);
+            OLED_drawPixel(x0, y0, color);
         }
         err -= dy;
         if (err < 0) {
@@ -115,15 +125,6 @@ void OLED_writeLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
             err += dx;
         }
     }
-}
-
-void OLED_startWrite(){
-    // Overwrite in subclasses if desired!
-}
-
-void OLED_writePixel(int16_t x, int16_t y, uint16_t color){
-    // Overwrite in subclasses if startWrite is defined!
-    drawPixel(x, y, color);
 }
 
 // (x,y) is topmost point; if unsure, calling function
@@ -152,18 +153,12 @@ void OLED_writeFillRect(int16_t x, int16_t y, int16_t w, int16_t h,
     fillRect(x,y,w,h,color);
 }
 
-void OLED_endWrite(){
-    // Overwrite in subclasses if startWrite is defined!
-}
-
 // (x,y) is topmost point; if unsure, calling function
 // should sort endpoints or call drawLine() instead
 void OLED_drawFastVLine(int16_t x, int16_t y,
         int16_t h, uint16_t color) {
     // Update in subclasses if desired!
-    startWrite();
     writeLine(x, y, x, y+h-1, color);
-    endWrite();
 }
 
 // (x,y) is leftmost point; if unsure, calling function
@@ -171,19 +166,15 @@ void OLED_drawFastVLine(int16_t x, int16_t y,
 void OLED_drawFastHLine(int16_t x, int16_t y,
         int16_t w, uint16_t color) {
     // Update in subclasses if desired!
-    startWrite();
     writeLine(x, y, x+w-1, y, color);
-    endWrite();
 }
 
 void OLED_fillRect(int16_t x, int16_t y, int16_t w, int16_t h,
         uint16_t color) {
     // Update in subclasses if desired!
-    startWrite();
     for (int16_t i=x; i<x+w; i++) {
         writeFastVLine(i, y, h, color);
     }
-    endWrite();
 }
 
 void OLED_fillScreen(uint16_t color) {
@@ -201,9 +192,7 @@ void OLED_drawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
         if(x0 > x1) _swap_int16_t(x0, x1);
         drawFastHLine(x0, y0, x1 - x0 + 1, color);
     } else {
-        startWrite();
         writeLine(x0, y0, x1, y1, color);
-        endWrite();
     }
 }
 
@@ -216,11 +205,10 @@ void OLED_drawCircle(int16_t x0, int16_t y0, int16_t r,
     int16_t x = 0;
     int16_t y = r;
 
-    startWrite();
-    writePixel(x0  , y0+r, color);
-    writePixel(x0  , y0-r, color);
-    writePixel(x0+r, y0  , color);
-    writePixel(x0-r, y0  , color);
+    OLED_drawPixel(x0  , y0+r, color);
+    OLED_drawPixel(x0  , y0-r, color);
+    OLED_drawPixel(x0+r, y0  , color);
+    OLED_drawPixel(x0-r, y0  , color);
 
     while (x<y) {
         if (f >= 0) {
@@ -232,16 +220,15 @@ void OLED_drawCircle(int16_t x0, int16_t y0, int16_t r,
         ddF_x += 2;
         f += ddF_x;
 
-        writePixel(x0 + x, y0 + y, color);
-        writePixel(x0 - x, y0 + y, color);
-        writePixel(x0 + x, y0 - y, color);
-        writePixel(x0 - x, y0 - y, color);
-        writePixel(x0 + y, y0 + x, color);
-        writePixel(x0 - y, y0 + x, color);
-        writePixel(x0 + y, y0 - x, color);
-        writePixel(x0 - y, y0 - x, color);
+        OLED_drawPixel(x0 + x, y0 + y, color);
+        OLED_drawPixel(x0 - x, y0 + y, color);
+        OLED_drawPixel(x0 + x, y0 - y, color);
+        OLED_drawPixel(x0 - x, y0 - y, color);
+        OLED_drawPixel(x0 + y, y0 + x, color);
+        OLED_drawPixel(x0 - y, y0 + x, color);
+        OLED_drawPixel(x0 + y, y0 - x, color);
+        OLED_drawPixel(x0 - y, y0 - x, color);
     }
-    endWrite();
 }
 
 void OLED_drawCircleHelper( int16_t x0, int16_t y0,
@@ -262,30 +249,28 @@ void OLED_drawCircleHelper( int16_t x0, int16_t y0,
         ddF_x += 2;
         f     += ddF_x;
         if (cornername & 0x4) {
-            writePixel(x0 + x, y0 + y, color);
-            writePixel(x0 + y, y0 + x, color);
+            OLED_drawPixel(x0 + x, y0 + y, color);
+            OLED_drawPixel(x0 + y, y0 + x, color);
         }
         if (cornername & 0x2) {
-            writePixel(x0 + x, y0 - y, color);
-            writePixel(x0 + y, y0 - x, color);
+            OLED_drawPixel(x0 + x, y0 - y, color);
+            OLED_drawPixel(x0 + y, y0 - x, color);
         }
         if (cornername & 0x8) {
-            writePixel(x0 - y, y0 + x, color);
-            writePixel(x0 - x, y0 + y, color);
+            OLED_drawPixel(x0 - y, y0 + x, color);
+            OLED_drawPixel(x0 - x, y0 + y, color);
         }
         if (cornername & 0x1) {
-            writePixel(x0 - y, y0 - x, color);
-            writePixel(x0 - x, y0 - y, color);
+            OLED_drawPixel(x0 - y, y0 - x, color);
+            OLED_drawPixel(x0 - x, y0 - y, color);
         }
     }
 }
 
 void OLED_fillCircle(int16_t x0, int16_t y0, int16_t r,
         uint16_t color) {
-    startWrite();
     writeFastVLine(x0, y0-r, 2*r+1, color);
     fillCircleHelper(x0, y0, r, 3, 0, color);
-    endWrite();
 }
 
 // Used to do circles and roundrects
@@ -322,19 +307,16 @@ void OLED_fillCircleHelper(int16_t x0, int16_t y0, int16_t r,
 // Draw a rectangle
 void OLED_drawRect(int16_t x, int16_t y, int16_t w, int16_t h,
         uint16_t color) {
-    startWrite();
     writeFastHLine(x, y, w, color);
     writeFastHLine(x, y+h-1, w, color);
     writeFastVLine(x, y, h, color);
     writeFastVLine(x+w-1, y, h, color);
-    endWrite();
 }
 
 // Draw a rounded rectangle
 void OLED_drawRoundRect(int16_t x, int16_t y, int16_t w,
         int16_t h, int16_t r, uint16_t color) {
     // smarter version
-    startWrite();
     writeFastHLine(x+r  , y    , w-2*r, color); // Top
     writeFastHLine(x+r  , y+h-1, w-2*r, color); // Bottom
     writeFastVLine(x    , y+r  , h-2*r, color); // Left
@@ -344,20 +326,17 @@ void OLED_drawRoundRect(int16_t x, int16_t y, int16_t w,
     drawCircleHelper(x+w-r-1, y+r    , r, 2, color);
     drawCircleHelper(x+w-r-1, y+h-r-1, r, 4, color);
     drawCircleHelper(x+r    , y+h-r-1, r, 8, color);
-    endWrite();
 }
 
 // Fill a rounded rectangle
 void OLED_fillRoundRect(int16_t x, int16_t y, int16_t w,
         int16_t h, int16_t r, uint16_t color) {
     // smarter version
-    startWrite();
     writeFillRect(x+r, y, w-2*r, h, color);
 
     // draw four corners
     fillCircleHelper(x+w-r-1, y+r, r, 1, h-2*r-1, color);
     fillCircleHelper(x+r    , y+r, r, 2, h-2*r-1, color);
-    endWrite();
 }
 
 // Draw a triangle
@@ -385,7 +364,6 @@ void OLED_fillTriangle(int16_t x0, int16_t y0,
         _swap_int16_t(y0, y1); _swap_int16_t(x0, x1);
     }
 
-    startWrite();
     if(y0 == y2) { // Handle awkward all-on-same-line case as its own thing
         a = b = x0;
         if(x1 < a)      a = x1;
@@ -393,7 +371,6 @@ void OLED_fillTriangle(int16_t x0, int16_t y0,
         if(x2 < a)      a = x2;
         else if(x2 > b) b = x2;
         writeFastHLine(a, y0, b-a+1, color);
-        endWrite();
         return;
     }
 
@@ -446,50 +423,9 @@ void OLED_fillTriangle(int16_t x0, int16_t y0,
         if(a > b) _swap_int16_t(a,b);
         writeFastHLine(a, y, b-a+1, color);
     }
-    endWrite();
 }
 
 // BITMAP / XBITMAP / GRAYSCALE / RGB BITMAP FUNCTIONS ---------------------
-
-// Draw a PROGMEM-resident 1-bit image at the specified (x,y) position,
-// using the specified foreground color (unset bits are transparent).
-void OLED_drawBitmap(int16_t x, int16_t y,
-  const uint8_t bitmap[], int16_t w, int16_t h, uint16_t color) {
-
-    int16_t byteWidth = (w + 7) / 8; // Bitmap scanline pad = whole byte
-    uint8_t byte = 0;
-
-    startWrite();
-    for(int16_t j=0; j<h; j++, y++) {
-        for(int16_t i=0; i<w; i++) {
-            if(i & 7) byte <<= 1;
-            else      byte   = pgm_read_byte(&bitmap[j * byteWidth + i / 8]);
-            if(byte & 0x80) writePixel(x+i, y, color);
-        }
-    }
-    endWrite();
-}
-
-// Draw a PROGMEM-resident 1-bit image at the specified (x,y) position,
-// using the specified foreground (for set bits) and background (unset
-// bits) colors.
-void OLED_drawBitmap(int16_t x, int16_t y,
-  const uint8_t bitmap[], int16_t w, int16_t h,
-  uint16_t color, uint16_t bg) {
-
-    int16_t byteWidth = (w + 7) / 8; // Bitmap scanline pad = whole byte
-    uint8_t byte = 0;
-
-    startWrite();
-    for(int16_t j=0; j<h; j++, y++) {
-        for(int16_t i=0; i<w; i++ ) {
-            if(i & 7) byte <<= 1;
-            else      byte   = pgm_read_byte(&bitmap[j * byteWidth + i / 8]);
-            writePixel(x+i, y, (byte & 0x80) ? color : bg);
-        }
-    }
-    endWrite();
-}
 
 // Draw a RAM-resident 1-bit image at the specified (x,y) position,
 // using the specified foreground color (unset bits are transparent).
@@ -499,15 +435,13 @@ void OLED_drawBitmap(int16_t x, int16_t y,
     int16_t byteWidth = (w + 7) / 8; // Bitmap scanline pad = whole byte
     uint8_t byte = 0;
 
-    startWrite();
     for(int16_t j=0; j<h; j++, y++) {
         for(int16_t i=0; i<w; i++ ) {
             if(i & 7) byte <<= 1;
             else      byte   = bitmap[j * byteWidth + i / 8];
-            if(byte & 0x80) writePixel(x+i, y, color);
+            if(byte & 0x80) OLED_drawPixel(x+i, y, color);
         }
     }
-    endWrite();
 }
 
 // Draw a RAM-resident 1-bit image at the specified (x,y) position,
@@ -519,53 +453,13 @@ void OLED_drawBitmap(int16_t x, int16_t y,
     int16_t byteWidth = (w + 7) / 8; // Bitmap scanline pad = whole byte
     uint8_t byte = 0;
 
-    startWrite();
     for(int16_t j=0; j<h; j++, y++) {
         for(int16_t i=0; i<w; i++ ) {
             if(i & 7) byte <<= 1;
             else      byte   = bitmap[j * byteWidth + i / 8];
-            writePixel(x+i, y, (byte & 0x80) ? color : bg);
+            OLED_drawPixel(x+i, y, (byte & 0x80) ? color : bg);
         }
     }
-    endWrite();
-}
-
-// Draw PROGMEM-resident XBitMap Files (*.xbm), exported from GIMP,
-// Usage: Export from GIMP to *.xbm, rename *.xbm to *.c and open in editor.
-// C Array can be directly used with this function.
-// There is no RAM-resident version of this function; if generating bitmaps
-// in RAM, use the format defined by drawBitmap() and call that instead.
-void OLED_drawXBitmap(int16_t x, int16_t y,
-  const uint8_t bitmap[], int16_t w, int16_t h, uint16_t color) {
-
-    int16_t byteWidth = (w + 7) / 8; // Bitmap scanline pad = whole byte
-    uint8_t byte = 0;
-
-    startWrite();
-    for(int16_t j=0; j<h; j++, y++) {
-        for(int16_t i=0; i<w; i++ ) {
-            if(i & 7) byte >>= 1;
-            else      byte   = pgm_read_byte(&bitmap[j * byteWidth + i / 8]);
-            // Nearly identical to drawBitmap(), only the bit order
-            // is reversed here (left-to-right = LSB to MSB):
-            if(byte & 0x01) writePixel(x+i, y, color);
-        }
-    }
-    endWrite();
-}
-
-// Draw a PROGMEM-resident 8-bit image (grayscale) at the specified (x,y)
-// pos.  Specifically for 8-bit display devices such as IS31FL3731;
-// no color reduction/expansion is performed.
-void OLED_drawGrayscaleBitmap(int16_t x, int16_t y,
-  const uint8_t bitmap[], int16_t w, int16_t h) {
-    startWrite();
-    for(int16_t j=0; j<h; j++, y++) {
-        for(int16_t i=0; i<w; i++ ) {
-            writePixel(x+i, y, (uint8_t)pgm_read_byte(&bitmap[j * w + i]));
-        }
-    }
-    endWrite();
 }
 
 // Draw a RAM-resident 8-bit image (grayscale) at the specified (x,y)
@@ -573,36 +467,11 @@ void OLED_drawGrayscaleBitmap(int16_t x, int16_t y,
 // no color reduction/expansion is performed.
 void OLED_drawGrayscaleBitmap(int16_t x, int16_t y,
   uint8_t *bitmap, int16_t w, int16_t h) {
-    startWrite();
     for(int16_t j=0; j<h; j++, y++) {
         for(int16_t i=0; i<w; i++ ) {
-            writePixel(x+i, y, bitmap[j * w + i]);
+            OLED_drawPixel(x+i, y, bitmap[j * w + i]);
         }
     }
-    endWrite();
-}
-
-// Draw a PROGMEM-resident 8-bit image (grayscale) with a 1-bit mask
-// (set bits = opaque, unset bits = clear) at the specified (x,y) position.
-// BOTH buffers (grayscale and mask) must be PROGMEM-resident.
-// Specifically for 8-bit display devices such as IS31FL3731;
-// no color reduction/expansion is performed.
-void OLED_drawGrayscaleBitmap(int16_t x, int16_t y,
-  const uint8_t bitmap[], const uint8_t mask[],
-  int16_t w, int16_t h) {
-    int16_t bw   = (w + 7) / 8; // Bitmask scanline pad = whole byte
-    uint8_t byte = 0;
-    startWrite();
-    for(int16_t j=0; j<h; j++, y++) {
-        for(int16_t i=0; i<w; i++ ) {
-            if(i & 7) byte <<= 1;
-            else      byte   = pgm_read_byte(&mask[j * bw + i / 8]);
-            if(byte & 0x80) {
-                writePixel(x+i, y, (uint8_t)pgm_read_byte(&bitmap[j * w + i]));
-            }
-        }
-    }
-    endWrite();
 }
 
 // Draw a RAM-resident 8-bit image (grayscale) with a 1-bit mask
@@ -614,65 +483,26 @@ void OLED_drawGrayscaleBitmap(int16_t x, int16_t y,
   uint8_t *bitmap, uint8_t *mask, int16_t w, int16_t h) {
     int16_t bw   = (w + 7) / 8; // Bitmask scanline pad = whole byte
     uint8_t byte = 0;
-    startWrite();
     for(int16_t j=0; j<h; j++, y++) {
         for(int16_t i=0; i<w; i++ ) {
             if(i & 7) byte <<= 1;
             else      byte   = mask[j * bw + i / 8];
             if(byte & 0x80) {
-                writePixel(x+i, y, bitmap[j * w + i]);
+                OLED_drawPixel(x+i, y, bitmap[j * w + i]);
             }
         }
     }
-    endWrite();
-}
-
-// Draw a PROGMEM-resident 16-bit image (RGB 5/6/5) at the specified (x,y)
-// position.  For 16-bit display devices; no color reduction performed.
-void OLED_drawRGBBitmap(int16_t x, int16_t y,
-  const uint16_t bitmap[], int16_t w, int16_t h) {
-    startWrite();
-    for(int16_t j=0; j<h; j++, y++) {
-        for(int16_t i=0; i<w; i++ ) {
-            writePixel(x+i, y, pgm_read_word(&bitmap[j * w + i]));
-        }
-    }
-    endWrite();
 }
 
 // Draw a RAM-resident 16-bit image (RGB 5/6/5) at the specified (x,y)
 // position.  For 16-bit display devices; no color reduction performed.
 void OLED_drawRGBBitmap(int16_t x, int16_t y,
   uint16_t *bitmap, int16_t w, int16_t h) {
-    startWrite();
     for(int16_t j=0; j<h; j++, y++) {
         for(int16_t i=0; i<w; i++ ) {
-            writePixel(x+i, y, bitmap[j * w + i]);
+            OLED_drawPixel(x+i, y, bitmap[j * w + i]);
         }
     }
-    endWrite();
-}
-
-// Draw a PROGMEM-resident 16-bit image (RGB 5/6/5) with a 1-bit mask
-// (set bits = opaque, unset bits = clear) at the specified (x,y) position.
-// BOTH buffers (color and mask) must be PROGMEM-resident.
-// For 16-bit display devices; no color reduction performed.
-void OLED_drawRGBBitmap(int16_t x, int16_t y,
-  const uint16_t bitmap[], const uint8_t mask[],
-  int16_t w, int16_t h) {
-    int16_t bw   = (w + 7) / 8; // Bitmask scanline pad = whole byte
-    uint8_t byte = 0;
-    startWrite();
-    for(int16_t j=0; j<h; j++, y++) {
-        for(int16_t i=0; i<w; i++ ) {
-            if(i & 7) byte <<= 1;
-            else      byte   = pgm_read_byte(&mask[j * bw + i / 8]);
-            if(byte & 0x80) {
-                writePixel(x+i, y, pgm_read_word(&bitmap[j * w + i]));
-            }
-        }
-    }
-    endWrite();
 }
 
 // Draw a RAM-resident 16-bit image (RGB 5/6/5) with a 1-bit mask
@@ -683,17 +513,15 @@ void OLED_drawRGBBitmap(int16_t x, int16_t y,
   uint16_t *bitmap, uint8_t *mask, int16_t w, int16_t h) {
     int16_t bw   = (w + 7) / 8; // Bitmask scanline pad = whole byte
     uint8_t byte = 0;
-    startWrite();
     for(int16_t j=0; j<h; j++, y++) {
         for(int16_t i=0; i<w; i++ ) {
             if(i & 7) byte <<= 1;
             else      byte   = mask[j * bw + i / 8];
             if(byte & 0x80) {
-                writePixel(x+i, y, bitmap[j * w + i]);
+                OLED_drawPixel(x+i, y, bitmap[j * w + i]);
             }
         }
     }
-    endWrite();
 }
 
 // TEXT- AND CHARACTER-HANDLING FUNCTIONS ----------------------------------
@@ -710,20 +538,17 @@ void OLED_drawChar(int16_t x, int16_t y, unsigned char c,
            ((y + 8 * size - 1) < 0))   // Clip top
             return;
 
-        if(!_cp437 && (c >= 176)) c++; // Handle 'classic' charset behavior
-
-        startWrite();
         for(int8_t i=0; i<5; i++ ) { // Char bitmap = 5 columns
             uint8_t line = pgm_read_byte(&font[c * 5 + i]);
             for(int8_t j=0; j<8; j++, line >>= 1) {
                 if(line & 1) {
                     if(size == 1)
-                        writePixel(x+i, y+j, color);
+                        OLED_drawPixel(x+i, y+j, color);
                     else
                         writeFillRect(x+i*size, y+j*size, size, size, color);
                 } else if(bg != color) {
                     if(size == 1)
-                        writePixel(x+i, y+j, bg);
+                        OLED_drawPixel(x+i, y+j, bg);
                     else
                         writeFillRect(x+i*size, y+j*size, size, size, bg);
                 }
@@ -733,7 +558,6 @@ void OLED_drawChar(int16_t x, int16_t y, unsigned char c,
             if(size == 1) writeFastVLine(x+5, y, 8, bg);
             else          writeFillRect(x+5*size, y, size, 8*size, bg);
         }
-        endWrite();
 
     } else { // Custom font
 
@@ -776,7 +600,6 @@ void OLED_drawChar(int16_t x, int16_t y, unsigned char c,
         // displays supporting setAddrWindow() and pushColors()), but haven't
         // implemented this yet.
 
-        startWrite();
         for(yy=0; yy<h; yy++) {
             for(xx=0; xx<w; xx++) {
                 if(!(bit++ & 7)) {
@@ -784,7 +607,7 @@ void OLED_drawChar(int16_t x, int16_t y, unsigned char c,
                 }
                 if(bits & 0x80) {
                     if(size == 1) {
-                        writePixel(x+xo+xx, y+yo+yy, color);
+                        OLED_drawPixel(x+xo+xx, y+yo+yy, color);
                     } else {
                         writeFillRect(x+(xo16+xx)*size, y+(yo16+yy)*size,
                           size, size, color);
@@ -793,16 +616,11 @@ void OLED_drawChar(int16_t x, int16_t y, unsigned char c,
                 bits <<= 1;
             }
         }
-        endWrite();
 
     } // End classic vs custom font
 }
 
-#if ARDUINO >= 100
-size_t OLED_write(uint8_t c) {
-#else
 void OLED_write(uint8_t c) {
-#endif
     if(!gfxFont) { // 'Classic' built-in font
 
         if(c == '\n') {                        // Newline?
@@ -844,9 +662,6 @@ void OLED_write(uint8_t c) {
         }
 
     }
-#if ARDUINO >= 100
-    return 1;
-#endif
 }
 
 void OLED_setCursor(int16_t x, int16_t y) {
@@ -899,17 +714,6 @@ void OLED_setRotation(uint8_t x) {
             _height = WIDTH;
             break;
     }
-}
-
-// Enable (or disable) Code Page 437-compatible charset.
-// There was an error in glcdfont.c for the longest time -- one character
-// (#176, the 'light shade' block) was missing -- this threw off the index
-// of every character that followed it.  But a TON of code has been written
-// with the erroneous character indices.  By default, the library uses the
-// original 'wrong' behavior and old sketches will still work.  Pass 'true'
-// to this function to use correct CP437 character values in your code.
-void OLED_cp437(boolean x) {
-    _cp437 = x;
 }
 
 void OLED_setFont(const GFXfont *f) {
@@ -999,30 +803,6 @@ void OLED_getTextBounds(char *str, int16_t x, int16_t y,
     int16_t minx = _width, miny = _height, maxx = -1, maxy = -1;
 
     while((c = *str++))
-        charBounds(c, &x, &y, &minx, &miny, &maxx, &maxy);
-
-    if(maxx >= minx) {
-        *x1 = minx;
-        *w  = maxx - minx + 1;
-    }
-    if(maxy >= miny) {
-        *y1 = miny;
-        *h  = maxy - miny + 1;
-    }
-}
-
-// Same as above, but for PROGMEM strings
-void OLED_getTextBounds(const __FlashStringHelper *str,
-        int16_t x, int16_t y, int16_t *x1, int16_t *y1, uint16_t *w, uint16_t *h) {
-    uint8_t *s = (uint8_t *)str, c;
-
-    *x1 = x;
-    *y1 = y;
-    *w  = *h = 0;
-
-    int16_t minx = _width, miny = _height, maxx = -1, maxy = -1;
-
-    while((c = pgm_read_byte(s++)))
         charBounds(c, &x, &y, &minx, &miny, &maxx, &maxy);
 
     if(maxx >= minx) {
