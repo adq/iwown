@@ -113,25 +113,19 @@ All text above, and the splash screen must be included in any redistribution
 #define SSD1306_VERTICAL_AND_RIGHT_HORIZONTAL_SCROLL 0x29
 #define SSD1306_VERTICAL_AND_LEFT_HORIZONTAL_SCROLL 0x2A
 
-void OLED_begin(uint8_t switchvcc, uint8_t i2caddr, bool reset);
-void OLED_ssd1306_command(uint8_t c);
+extern void OLED_begin(uint8_t switchvcc, uint8_t i2caddr, bool reset);
+extern void OLED_command(uint8_t c);
 
-void OLED_clearDisplay(void);
-void OLED_invertDisplay(uint8_t i);
-void OLED_display();
+extern void OLED_clearDisplay(void);
+extern void OLED_display();
 
-void OLED_startscrollright(uint8_t start, uint8_t stop);
-void OLED_startscrollleft(uint8_t start, uint8_t stop);
+extern void OLED_startscrollright(uint8_t start, uint8_t stop);
+extern void OLED_startscrollleft(uint8_t start, uint8_t stop);
 
-void OLED_startscrolldiagright(uint8_t start, uint8_t stop);
-void OLED_startscrolldiagleft(uint8_t start, uint8_t stop);
-void OLED_stopscroll(void);
+extern void OLED_startscrolldiagright(uint8_t start, uint8_t stop);
+extern void OLED_startscrolldiagleft(uint8_t start, uint8_t stop);
+extern void OLED_stopscroll(void);
 
-void OLED_dim(bool dim);
-
-void OLED_drawPixel(int16_t x, int16_t y, uint16_t color);
-
-void OLED_drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color);
-void OLED_drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color);
+extern void OLED_dim(bool dim);
 
 #endif /* _OLED__SSD1306_H_ */

@@ -194,77 +194,77 @@ void OLED_begin(uint8_t vccstate, uint8_t i2caddr, bool reset) {
   }
 
   // Init sequence
-  OLED_ssd1306_command(SSD1306_DISPLAYOFF);                    // 0xAE
-  OLED_ssd1306_command(SSD1306_SETDISPLAYCLOCKDIV);            // 0xD5
-  OLED_ssd1306_command(0x80);                                  // the suggested ratio 0x80
+  OLED_command(SSD1306_DISPLAYOFF);                    // 0xAE
+  OLED_command(SSD1306_SETDISPLAYCLOCKDIV);            // 0xD5
+  OLED_command(0x80);                                  // the suggested ratio 0x80
 
-  OLED_ssd1306_command(SSD1306_SETMULTIPLEX);                  // 0xA8
-  OLED_ssd1306_command(SSD1306_LCDHEIGHT - 1);
+  OLED_command(SSD1306_SETMULTIPLEX);                  // 0xA8
+  OLED_command(SSD1306_LCDHEIGHT - 1);
 
-  OLED_ssd1306_command(SSD1306_SETDISPLAYOFFSET);              // 0xD3
-  OLED_ssd1306_command(0x0);                                   // no offset
-  OLED_ssd1306_command(SSD1306_SETSTARTLINE | 0x0);            // line #0
-  OLED_ssd1306_command(SSD1306_CHARGEPUMP);                    // 0x8D
+  OLED_command(SSD1306_SETDISPLAYOFFSET);              // 0xD3
+  OLED_command(0x0);                                   // no offset
+  OLED_command(SSD1306_SETSTARTLINE | 0x0);            // line #0
+  OLED_command(SSD1306_CHARGEPUMP);                    // 0x8D
   if (vccstate == SSD1306_EXTERNALVCC)
-    { OLED_ssd1306_command(0x10); }
+    { OLED_command(0x10); }
   else
-    { OLED_ssd1306_command(0x14); }
-  OLED_ssd1306_command(SSD1306_MEMORYMODE);                    // 0x20
-  OLED_ssd1306_command(0x00);                                  // 0x0 act like ks0108
-  OLED_ssd1306_command(SSD1306_SEGREMAP | 0x1);
-  OLED_ssd1306_command(SSD1306_COMSCANDEC);
+    { OLED_command(0x14); }
+  OLED_command(SSD1306_MEMORYMODE);                    // 0x20
+  OLED_command(0x00);                                  // 0x0 act like ks0108
+  OLED_command(SSD1306_SEGREMAP | 0x1);
+  OLED_command(SSD1306_COMSCANDEC);
 
  #if defined SSD1306_128_32
-  OLED_ssd1306_command(SSD1306_SETCOMPINS);                    // 0xDA
-  OLED_ssd1306_command(0x02);
-  OLED_ssd1306_command(SSD1306_SETCONTRAST);                   // 0x81
-  OLED_ssd1306_command(0x8F);
+  OLED_command(SSD1306_SETCOMPINS);                    // 0xDA
+  OLED_command(0x02);
+  OLED_command(SSD1306_SETCONTRAST);                   // 0x81
+  OLED_command(0x8F);
 
 #elif defined SSD1306_128_64
-  OLED_ssd1306_command(SSD1306_SETCOMPINS);                    // 0xDA
-  OLED_ssd1306_command(0x12);
-  OLED_ssd1306_command(SSD1306_SETCONTRAST);                   // 0x81
+  OLED_command(SSD1306_SETCOMPINS);                    // 0xDA
+  OLED_command(0x12);
+  OLED_command(SSD1306_SETCONTRAST);                   // 0x81
   if (vccstate == SSD1306_EXTERNALVCC)
-    { OLED_ssd1306_command(0x9F); }
+    { OLED_command(0x9F); }
   else
-    { OLED_ssd1306_command(0xCF); }
+    { OLED_command(0xCF); }
 
 #elif defined SSD1306_96_16
-  OLED_ssd1306_command(SSD1306_SETCOMPINS);                    // 0xDA
-  OLED_ssd1306_command(0x2);   //ada x12
-  OLED_ssd1306_command(SSD1306_SETCONTRAST);                   // 0x81
+  OLED_command(SSD1306_SETCOMPINS);                    // 0xDA
+  OLED_command(0x2);   //ada x12
+  OLED_command(SSD1306_SETCONTRAST);                   // 0x81
   if (vccstate == SSD1306_EXTERNALVCC)
-    { OLED_ssd1306_command(0x10); }
+    { OLED_command(0x10); }
   else
-    { OLED_ssd1306_command(0xAF); }
+    { OLED_command(0xAF); }
 
 #endif
 
-  OLED_ssd1306_command(SSD1306_SETPRECHARGE);                  // 0xd9
+  OLED_command(SSD1306_SETPRECHARGE);                  // 0xd9
   if (vccstate == SSD1306_EXTERNALVCC)
-    { OLED_ssd1306_command(0x22); }
+    { OLED_command(0x22); }
   else
-    { OLED_ssd1306_command(0xF1); }
-  OLED_ssd1306_command(SSD1306_SETVCOMDETECT);                 // 0xDB
-  OLED_ssd1306_command(0x40);
-  OLED_ssd1306_command(SSD1306_DISPLAYALLON_RESUME);           // 0xA4
-  OLED_ssd1306_command(SSD1306_NORMALDISPLAY);                 // 0xA6
+    { OLED_command(0xF1); }
+  OLED_command(SSD1306_SETVCOMDETECT);                 // 0xDB
+  OLED_command(0x40);
+  OLED_command(SSD1306_DISPLAYALLON_RESUME);           // 0xA4
+  OLED_command(SSD1306_NORMALDISPLAY);                 // 0xA6
 
-  OLED_ssd1306_command(SSD1306_DEACTIVATE_SCROLL);
+  OLED_command(SSD1306_DEACTIVATE_SCROLL);
 
-  OLED_ssd1306_command(SSD1306_DISPLAYON);//--turn on oled panel
+  OLED_command(SSD1306_DISPLAYON);//--turn on oled panel
 }
 
 
-void OLED_invertDisplay(uint8_t i) {
+void OLED_invertDisplay(bool i) {
   if (i) {
-    OLED_ssd1306_command(SSD1306_INVERTDISPLAY);
+    OLED_command(SSD1306_INVERTDISPLAY);
   } else {
-    OLED_ssd1306_command(SSD1306_NORMALDISPLAY);
+    OLED_command(SSD1306_NORMALDISPLAY);
   }
 }
 
-void OLED_ssd1306_command(uint8_t c) {
+void OLED_command(uint8_t c) {
   if (sid != -1)
   {
     // SPI
@@ -300,14 +300,14 @@ void OLED_ssd1306_command(uint8_t c) {
 // Hint, the display is 16 rows tall. To scroll the whole display, run:
 // display.scrollright(0x00, 0x0F)
 void OLED_startscrollright(uint8_t start, uint8_t stop){
-  OLED_ssd1306_command(SSD1306_RIGHT_HORIZONTAL_SCROLL);
-  OLED_ssd1306_command(0X00);
-  OLED_ssd1306_command(start);
-  OLED_ssd1306_command(0X00);
-  OLED_ssd1306_command(stop);
-  OLED_ssd1306_command(0X00);
-  OLED_ssd1306_command(0XFF);
-  OLED_ssd1306_command(SSD1306_ACTIVATE_SCROLL);
+  OLED_command(SSD1306_RIGHT_HORIZONTAL_SCROLL);
+  OLED_command(0X00);
+  OLED_command(start);
+  OLED_command(0X00);
+  OLED_command(stop);
+  OLED_command(0X00);
+  OLED_command(0XFF);
+  OLED_command(SSD1306_ACTIVATE_SCROLL);
 }
 
 // startscrollleft
@@ -315,14 +315,14 @@ void OLED_startscrollright(uint8_t start, uint8_t stop){
 // Hint, the display is 16 rows tall. To scroll the whole display, run:
 // display.scrollright(0x00, 0x0F)
 void OLED_startscrollleft(uint8_t start, uint8_t stop){
-  OLED_ssd1306_command(SSD1306_LEFT_HORIZONTAL_SCROLL);
-  OLED_ssd1306_command(0X00);
-  OLED_ssd1306_command(start);
-  OLED_ssd1306_command(0X00);
-  OLED_ssd1306_command(stop);
-  OLED_ssd1306_command(0X00);
-  OLED_ssd1306_command(0XFF);
-  OLED_ssd1306_command(SSD1306_ACTIVATE_SCROLL);
+  OLED_command(SSD1306_LEFT_HORIZONTAL_SCROLL);
+  OLED_command(0X00);
+  OLED_command(start);
+  OLED_command(0X00);
+  OLED_command(stop);
+  OLED_command(0X00);
+  OLED_command(0XFF);
+  OLED_command(SSD1306_ACTIVATE_SCROLL);
 }
 
 // startscrolldiagright
@@ -330,16 +330,16 @@ void OLED_startscrollleft(uint8_t start, uint8_t stop){
 // Hint, the display is 16 rows tall. To scroll the whole display, run:
 // display.scrollright(0x00, 0x0F)
 void OLED_startscrolldiagright(uint8_t start, uint8_t stop){
-  OLED_ssd1306_command(SSD1306_SET_VERTICAL_SCROLL_AREA);
-  OLED_ssd1306_command(0X00);
-  OLED_ssd1306_command(SSD1306_LCDHEIGHT);
-  OLED_ssd1306_command(SSD1306_VERTICAL_AND_RIGHT_HORIZONTAL_SCROLL);
-  OLED_ssd1306_command(0X00);
-  OLED_ssd1306_command(start);
-  OLED_ssd1306_command(0X00);
-  OLED_ssd1306_command(stop);
-  OLED_ssd1306_command(0X01);
-  OLED_ssd1306_command(SSD1306_ACTIVATE_SCROLL);
+  OLED_command(SSD1306_SET_VERTICAL_SCROLL_AREA);
+  OLED_command(0X00);
+  OLED_command(SSD1306_LCDHEIGHT);
+  OLED_command(SSD1306_VERTICAL_AND_RIGHT_HORIZONTAL_SCROLL);
+  OLED_command(0X00);
+  OLED_command(start);
+  OLED_command(0X00);
+  OLED_command(stop);
+  OLED_command(0X01);
+  OLED_command(SSD1306_ACTIVATE_SCROLL);
 }
 
 // startscrolldiagleft
@@ -347,20 +347,20 @@ void OLED_startscrolldiagright(uint8_t start, uint8_t stop){
 // Hint, the display is 16 rows tall. To scroll the whole display, run:
 // display.scrollright(0x00, 0x0F)
 void OLED_startscrolldiagleft(uint8_t start, uint8_t stop){
-  OLED_ssd1306_command(SSD1306_SET_VERTICAL_SCROLL_AREA);
-  OLED_ssd1306_command(0X00);
-  OLED_ssd1306_command(SSD1306_LCDHEIGHT);
-  OLED_ssd1306_command(SSD1306_VERTICAL_AND_LEFT_HORIZONTAL_SCROLL);
-  OLED_ssd1306_command(0X00);
-  OLED_ssd1306_command(start);
-  OLED_ssd1306_command(0X00);
-  OLED_ssd1306_command(stop);
-  OLED_ssd1306_command(0X01);
-  OLED_ssd1306_command(SSD1306_ACTIVATE_SCROLL);
+  OLED_command(SSD1306_SET_VERTICAL_SCROLL_AREA);
+  OLED_command(0X00);
+  OLED_command(SSD1306_LCDHEIGHT);
+  OLED_command(SSD1306_VERTICAL_AND_LEFT_HORIZONTAL_SCROLL);
+  OLED_command(0X00);
+  OLED_command(start);
+  OLED_command(0X00);
+  OLED_command(stop);
+  OLED_command(0X01);
+  OLED_command(SSD1306_ACTIVATE_SCROLL);
 }
 
 void OLED_stopscroll(void) {
-  OLED_ssd1306_command(SSD1306_DEACTIVATE_SCROLL);
+  OLED_command(SSD1306_DEACTIVATE_SCROLL);
 }
 
 // Dim the display
@@ -380,25 +380,25 @@ void OLED_dim(bool dim) {
   }
   // the range of contrast to too small to be really useful
   // it is useful to dim the display
-  OLED_ssd1306_command(SSD1306_SETCONTRAST);
-  OLED_ssd1306_command(contrast);
+  OLED_command(SSD1306_SETCONTRAST);
+  OLED_command(contrast);
 }
 
 void OLED_display(void) {
-  OLED_ssd1306_command(SSD1306_COLUMNADDR);
-  OLED_ssd1306_command(0);   // Column start address (0 = reset)
-  OLED_ssd1306_command(SSD1306_LCDWIDTH-1); // Column end address (127 = reset)
+  OLED_command(SSD1306_COLUMNADDR);
+  OLED_command(0);   // Column start address (0 = reset)
+  OLED_command(SSD1306_LCDWIDTH-1); // Column end address (127 = reset)
 
-  OLED_ssd1306_command(SSD1306_PAGEADDR);
-  OLED_ssd1306_command(0); // Page start address (0 = reset)
+  OLED_command(SSD1306_PAGEADDR);
+  OLED_command(0); // Page start address (0 = reset)
   #if SSD1306_LCDHEIGHT == 64
-    OLED_ssd1306_command(7); // Page end address
+    OLED_command(7); // Page end address
   #endif
   #if SSD1306_LCDHEIGHT == 32
-    OLED_ssd1306_command(3); // Page end address
+    OLED_command(3); // Page end address
   #endif
   #if SSD1306_LCDHEIGHT == 16
-    OLED_ssd1306_command(1); // Page end address
+    OLED_command(1); // Page end address
   #endif
 
   if (sid != -1)

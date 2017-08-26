@@ -36,25 +36,12 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <stdlib.h>
 #include <string.h>
 #include "OLED_GFX.h"
+#include "glcdfont.c"
 
-#ifndef pgm_read_byte
- #define pgm_read_byte(addr) (*(const unsigned char *)(addr))
-#endif
-#ifndef pgm_read_word
- #define pgm_read_word(addr) (*(const unsigned short *)(addr))
-#endif
-#ifndef pgm_read_dword
- #define pgm_read_dword(addr) (*(const unsigned long *)(addr))
-#endif
-
-// Pointers are a peculiar case...typically 16-bit on AVR boards,
-// 32 bits elsewhere.  Try to accommodate both...
-
-#if !defined(__INT_MAX__) || (__INT_MAX__ > 0xFFFF)
- #define pgm_read_pointer(addr) ((void *)pgm_read_dword(addr))
-#else
- #define pgm_read_pointer(addr) ((void *)pgm_read_word(addr))
-#endif
+#define pgm_read_byte(addr) (*(const unsigned char *)(addr))
+#define pgm_read_word(addr) (*(const unsigned short *)(addr))
+#define pgm_read_dword(addr) (*(const unsigned long *)(addr))
+#define pgm_read_pointer(addr) ((void *)pgm_read_dword(addr))
 
 #ifndef min
 #define min(a,b) (((a) < (b)) ? (a) : (b))
@@ -70,6 +57,13 @@ uint32_t OLED_curWidth;
 uint32_t OLED_curHeight;
 uint8_t OLED_textsize = 1;
 uint8_t OLED_rotation = 0;
+int16_t OLED_cursor_x = 0;
+int16_t OLED_cursor_y = 0;
+uint16_t OLED_textcolor = 0xffff;
+uint16_t OLED_textbgcolor = 0xffff;
+bool OLED_wrap = true;
+GFXfont *OLED_gfxFont = NULL;
+
 
 /*
 OLED_Adafruit_GFX(int16_t w, int16_t h):
@@ -128,37 +122,11 @@ void OLED_writeLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
 }
 
 // (x,y) is topmost point; if unsure, calling function
-// should sort endpoints or call writeLine() instead
-void OLED_writeFastVLine(int16_t x, int16_t y,
-        int16_t h, uint16_t color) {
-    // Overwrite in subclasses if startWrite is defined!
-    // Can be just writeLine(x, y, x, y+h-1, color);
-    // or writeFillRect(x, y, 1, h, color);
-    drawFastVLine(x, y, h, color);
-}
-
-// (x,y) is leftmost point; if unsure, calling function
-// should sort endpoints or call writeLine() instead
-void OLED_writeFastHLine(int16_t x, int16_t y,
-        int16_t w, uint16_t color) {
-    // Overwrite in subclasses if startWrite is defined!
-    // Example: writeLine(x, y, x+w-1, y, color);
-    // or writeFillRect(x, y, w, 1, color);
-    drawFastHLine(x, y, w, color);
-}
-
-void OLED_writeFillRect(int16_t x, int16_t y, int16_t w, int16_t h,
-        uint16_t color) {
-    // Overwrite in subclasses if desired!
-    fillRect(x,y,w,h,color);
-}
-
-// (x,y) is topmost point; if unsure, calling function
 // should sort endpoints or call drawLine() instead
 void OLED_drawFastVLine(int16_t x, int16_t y,
         int16_t h, uint16_t color) {
     // Update in subclasses if desired!
-    writeLine(x, y, x, y+h-1, color);
+    OLED_writeLine(x, y, x, y+h-1, color);
 }
 
 // (x,y) is leftmost point; if unsure, calling function
@@ -166,20 +134,20 @@ void OLED_drawFastVLine(int16_t x, int16_t y,
 void OLED_drawFastHLine(int16_t x, int16_t y,
         int16_t w, uint16_t color) {
     // Update in subclasses if desired!
-    writeLine(x, y, x+w-1, y, color);
+    OLED_writeLine(x, y, x+w-1, y, color);
 }
 
 void OLED_fillRect(int16_t x, int16_t y, int16_t w, int16_t h,
         uint16_t color) {
     // Update in subclasses if desired!
     for (int16_t i=x; i<x+w; i++) {
-        writeFastVLine(i, y, h, color);
+        OLED_drawFastVLine(i, y, h, color);
     }
 }
 
 void OLED_fillScreen(uint16_t color) {
     // Update in subclasses if desired!
-    fillRect(0, 0, _width, _height, color);
+    OLED_fillRect(0, 0, OLED_curWidth, OLED_curHeight, color);
 }
 
 void OLED_drawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
@@ -187,12 +155,12 @@ void OLED_drawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
     // Update in subclasses if desired!
     if(x0 == x1){
         if(y0 > y1) _swap_int16_t(y0, y1);
-        drawFastVLine(x0, y0, y1 - y0 + 1, color);
+        OLED_drawFastVLine(x0, y0, y1 - y0 + 1, color);
     } else if(y0 == y1){
         if(x0 > x1) _swap_int16_t(x0, x1);
-        drawFastHLine(x0, y0, x1 - x0 + 1, color);
+        OLED_drawFastHLine(x0, y0, x1 - x0 + 1, color);
     } else {
-        writeLine(x0, y0, x1, y1, color);
+        OLED_writeLine(x0, y0, x1, y1, color);
     }
 }
 
@@ -269,8 +237,8 @@ void OLED_drawCircleHelper( int16_t x0, int16_t y0,
 
 void OLED_fillCircle(int16_t x0, int16_t y0, int16_t r,
         uint16_t color) {
-    writeFastVLine(x0, y0-r, 2*r+1, color);
-    fillCircleHelper(x0, y0, r, 3, 0, color);
+    OLED_drawFastVLine(x0, y0-r, 2*r+1, color);
+    OLED_fillCircleHelper(x0, y0, r, 3, 0, color);
 }
 
 // Used to do circles and roundrects
@@ -294,57 +262,57 @@ void OLED_fillCircleHelper(int16_t x0, int16_t y0, int16_t r,
         f     += ddF_x;
 
         if (cornername & 0x1) {
-            writeFastVLine(x0+x, y0-y, 2*y+1+delta, color);
-            writeFastVLine(x0+y, y0-x, 2*x+1+delta, color);
+            OLED_drawFastVLine(x0+x, y0-y, 2*y+1+delta, color);
+            OLED_drawFastVLine(x0+y, y0-x, 2*x+1+delta, color);
         }
         if (cornername & 0x2) {
-            writeFastVLine(x0-x, y0-y, 2*y+1+delta, color);
-            writeFastVLine(x0-y, y0-x, 2*x+1+delta, color);
+            OLED_drawFastVLine(x0-x, y0-y, 2*y+1+delta, color);
+            OLED_drawFastVLine(x0-y, y0-x, 2*x+1+delta, color);
         }
     }
 }
 
 // Draw a rectangle
 void OLED_drawRect(int16_t x, int16_t y, int16_t w, int16_t h,
-        uint16_t color) {
-    writeFastHLine(x, y, w, color);
-    writeFastHLine(x, y+h-1, w, color);
-    writeFastVLine(x, y, h, color);
-    writeFastVLine(x+w-1, y, h, color);
+    uint16_t color) {
+    OLED_drawFastHLine(x, y, w, color);
+    OLED_drawFastHLine(x, y+h-1, w, color);
+    OLED_drawFastVLine(x, y, h, color);
+    OLED_drawFastVLine(x+w-1, y, h, color);
 }
 
 // Draw a rounded rectangle
 void OLED_drawRoundRect(int16_t x, int16_t y, int16_t w,
-        int16_t h, int16_t r, uint16_t color) {
+    int16_t h, int16_t r, uint16_t color) {
     // smarter version
-    writeFastHLine(x+r  , y    , w-2*r, color); // Top
-    writeFastHLine(x+r  , y+h-1, w-2*r, color); // Bottom
-    writeFastVLine(x    , y+r  , h-2*r, color); // Left
-    writeFastVLine(x+w-1, y+r  , h-2*r, color); // Right
+    OLED_drawFastHLine(x+r  , y    , w-2*r, color); // Top
+    OLED_drawFastHLine(x+r  , y+h-1, w-2*r, color); // Bottom
+    OLED_drawFastVLine(x    , y+r  , h-2*r, color); // Left
+    OLED_drawFastVLine(x+w-1, y+r  , h-2*r, color); // Right
     // draw four corners
-    drawCircleHelper(x+r    , y+r    , r, 1, color);
-    drawCircleHelper(x+w-r-1, y+r    , r, 2, color);
-    drawCircleHelper(x+w-r-1, y+h-r-1, r, 4, color);
-    drawCircleHelper(x+r    , y+h-r-1, r, 8, color);
+    OLED_drawCircleHelper(x+r    , y+r    , r, 1, color);
+    OLED_drawCircleHelper(x+w-r-1, y+r    , r, 2, color);
+    OLED_drawCircleHelper(x+w-r-1, y+h-r-1, r, 4, color);
+    OLED_drawCircleHelper(x+r    , y+h-r-1, r, 8, color);
 }
 
 // Fill a rounded rectangle
 void OLED_fillRoundRect(int16_t x, int16_t y, int16_t w,
-        int16_t h, int16_t r, uint16_t color) {
+                        int16_t h, int16_t r, uint16_t color) {
     // smarter version
-    writeFillRect(x+r, y, w-2*r, h, color);
+    OLED_fillRect(x+r, y, w-2*r, h, color);
 
     // draw four corners
-    fillCircleHelper(x+w-r-1, y+r, r, 1, h-2*r-1, color);
-    fillCircleHelper(x+r    , y+r, r, 2, h-2*r-1, color);
+    OLED_fillCircleHelper(x+w-r-1, y+r, r, 1, h-2*r-1, color);
+    OLED_fillCircleHelper(x+r    , y+r, r, 2, h-2*r-1, color);
 }
 
 // Draw a triangle
 void OLED_drawTriangle(int16_t x0, int16_t y0,
         int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t color) {
-    drawLine(x0, y0, x1, y1, color);
-    drawLine(x1, y1, x2, y2, color);
-    drawLine(x2, y2, x0, y0, color);
+    OLED_drawLine(x0, y0, x1, y1, color);
+    OLED_drawLine(x1, y1, x2, y2, color);
+    OLED_drawLine(x2, y2, x0, y0, color);
 }
 
 // Fill a triangle
@@ -370,7 +338,7 @@ void OLED_fillTriangle(int16_t x0, int16_t y0,
         else if(x1 > b) b = x1;
         if(x2 < a)      a = x2;
         else if(x2 > b) b = x2;
-        writeFastHLine(a, y0, b-a+1, color);
+        OLED_drawFastHLine(a, y0, b-a+1, color);
         return;
     }
 
@@ -404,7 +372,7 @@ void OLED_fillTriangle(int16_t x0, int16_t y0,
         b = x0 + (x2 - x0) * (y - y0) / (y2 - y0);
         */
         if(a > b) _swap_int16_t(a,b);
-        writeFastHLine(a, y, b-a+1, color);
+        OLED_drawFastHLine(a, y, b-a+1, color);
     }
 
     // For lower part of triangle, find scanline crossings for segments
@@ -421,7 +389,7 @@ void OLED_fillTriangle(int16_t x0, int16_t y0,
         b = x0 + (x2 - x0) * (y - y0) / (y2 - y0);
         */
         if(a > b) _swap_int16_t(a,b);
-        writeFastHLine(a, y, b-a+1, color);
+        OLED_drawFastHLine(a, y, b-a+1, color);
     }
 }
 
@@ -447,7 +415,7 @@ void OLED_drawBitmap(int16_t x, int16_t y,
 // Draw a RAM-resident 1-bit image at the specified (x,y) position,
 // using the specified foreground (for set bits) and background (unset
 // bits) colors.
-void OLED_drawBitmap(int16_t x, int16_t y,
+void OLED_drawBitmapBg(int16_t x, int16_t y,
   uint8_t *bitmap, int16_t w, int16_t h, uint16_t color, uint16_t bg) {
 
     int16_t byteWidth = (w + 7) / 8; // Bitmap scanline pad = whole byte
@@ -479,7 +447,7 @@ void OLED_drawGrayscaleBitmap(int16_t x, int16_t y,
 // BOTH buffers (grayscale and mask) must be RAM-resident, no mix-and-
 // match.  Specifically for 8-bit display devices such as IS31FL3731;
 // no color reduction/expansion is performed.
-void OLED_drawGrayscaleBitmap(int16_t x, int16_t y,
+void OLED_drawGrayscaleBitmapMask(int16_t x, int16_t y,
   uint8_t *bitmap, uint8_t *mask, int16_t w, int16_t h) {
     int16_t bw   = (w + 7) / 8; // Bitmask scanline pad = whole byte
     uint8_t byte = 0;
@@ -509,7 +477,7 @@ void OLED_drawRGBBitmap(int16_t x, int16_t y,
 // (set bits = opaque, unset bits = clear) at the specified (x,y) pos.
 // BOTH buffers (color and mask) must be RAM-resident, no mix-and-match.
 // For 16-bit display devices; no color reduction performed.
-void OLED_drawRGBBitmap(int16_t x, int16_t y,
+void OLED_drawRGBBitmapMask(int16_t x, int16_t y,
   uint16_t *bitmap, uint8_t *mask, int16_t w, int16_t h) {
     int16_t bw   = (w + 7) / 8; // Bitmask scanline pad = whole byte
     uint8_t byte = 0;
@@ -530,10 +498,10 @@ void OLED_drawRGBBitmap(int16_t x, int16_t y,
 void OLED_drawChar(int16_t x, int16_t y, unsigned char c,
   uint16_t color, uint16_t bg, uint8_t size) {
 
-    if(!gfxFont) { // 'Classic' built-in font
+    if(!OLED_gfxFont) { // 'Classic' built-in font
 
-        if((x >= _width)            || // Clip right
-           (y >= _height)           || // Clip bottom
+        if((x >= OLED_curWidth)            || // Clip right
+           (y >= OLED_curHeight)           || // Clip bottom
            ((x + 6 * size - 1) < 0) || // Clip left
            ((y + 8 * size - 1) < 0))   // Clip top
             return;
@@ -545,18 +513,18 @@ void OLED_drawChar(int16_t x, int16_t y, unsigned char c,
                     if(size == 1)
                         OLED_drawPixel(x+i, y+j, color);
                     else
-                        writeFillRect(x+i*size, y+j*size, size, size, color);
+                        OLED_fillRect(x+i*size, y+j*size, size, size, color);
                 } else if(bg != color) {
                     if(size == 1)
                         OLED_drawPixel(x+i, y+j, bg);
                     else
-                        writeFillRect(x+i*size, y+j*size, size, size, bg);
+                        OLED_fillRect(x+i*size, y+j*size, size, size, bg);
                 }
             }
         }
         if(bg != color) { // If opaque, draw vertical line for last column
-            if(size == 1) writeFastVLine(x+5, y, 8, bg);
-            else          writeFillRect(x+5*size, y, size, 8*size, bg);
+            if(size == 1) OLED_drawFastVLine(x+5, y, 8, bg);
+            else          OLED_fillRect(x+5*size, y, size, 8*size, bg);
         }
 
     } else { // Custom font
@@ -565,9 +533,9 @@ void OLED_drawChar(int16_t x, int16_t y, unsigned char c,
         // newlines, returns, non-printable characters, etc.  Calling
         // drawChar() directly with 'bad' characters of font may cause mayhem!
 
-        c -= (uint8_t)pgm_read_byte(&gfxFont->first);
-        GFXglyph *glyph  = &(((GFXglyph *)pgm_read_pointer(&gfxFont->glyph))[c]);
-        uint8_t  *bitmap = (uint8_t *)pgm_read_pointer(&gfxFont->bitmap);
+        c -= (uint8_t)pgm_read_byte(&OLED_gfxFont->first);
+        GFXglyph *glyph  = &(((GFXglyph *)pgm_read_pointer(&OLED_gfxFont->glyph))[c]);
+        uint8_t  *bitmap = (uint8_t *)pgm_read_pointer(&OLED_gfxFont->bitmap);
 
         uint16_t bo = pgm_read_word(&glyph->bitmapOffset);
         uint8_t  w  = pgm_read_byte(&glyph->width),
@@ -609,7 +577,7 @@ void OLED_drawChar(int16_t x, int16_t y, unsigned char c,
                     if(size == 1) {
                         OLED_drawPixel(x+xo+xx, y+yo+yy, color);
                     } else {
-                        writeFillRect(x+(xo16+xx)*size, y+(yo16+yy)*size,
+                        OLED_fillRect(x+(xo16+xx)*size, y+(yo16+yy)*size,
                           size, size, color);
                     }
                 }
@@ -621,43 +589,43 @@ void OLED_drawChar(int16_t x, int16_t y, unsigned char c,
 }
 
 void OLED_write(uint8_t c) {
-    if(!gfxFont) { // 'Classic' built-in font
+    if(!OLED_gfxFont) { // 'Classic' built-in font
 
         if(c == '\n') {                        // Newline?
-            cursor_x  = 0;                     // Reset x to zero,
-            cursor_y += textsize * 8;          // advance y one line
+            OLED_cursor_x  = 0;                     // Reset x to zero,
+            OLED_cursor_y += OLED_textsize * 8;          // advance y one line
         } else if(c != '\r') {                 // Ignore carriage returns
-            if(wrap && ((cursor_x + textsize * 6) > _width)) { // Off right?
-                cursor_x  = 0;                 // Reset x to zero,
-                cursor_y += textsize * 8;      // advance y one line
+            if(OLED_wrap && ((OLED_cursor_x + OLED_textsize * 6) > OLED_curWidth)) { // Off right?
+                OLED_cursor_x  = 0;                 // Reset x to zero,
+                OLED_cursor_y += OLED_textsize * 8;      // advance y one line
             }
-            drawChar(cursor_x, cursor_y, c, textcolor, textbgcolor, textsize);
-            cursor_x += textsize * 6;          // Advance x one char
+            OLED_drawChar(OLED_cursor_x, OLED_cursor_y, c, OLED_textcolor, OLED_textbgcolor, OLED_textsize);
+            OLED_cursor_x += OLED_textsize * 6;          // Advance x one char
         }
 
     } else { // Custom font
 
         if(c == '\n') {
-            cursor_x  = 0;
-            cursor_y += (int16_t)textsize *
-                        (uint8_t)pgm_read_byte(&gfxFont->yAdvance);
+            OLED_cursor_x  = 0;
+            OLED_cursor_y += (int16_t)OLED_textsize *
+                        (uint8_t)pgm_read_byte(&OLED_gfxFont->yAdvance);
         } else if(c != '\r') {
-            uint8_t first = pgm_read_byte(&gfxFont->first);
-            if((c >= first) && (c <= (uint8_t)pgm_read_byte(&gfxFont->last))) {
+            uint8_t first = pgm_read_byte(&OLED_gfxFont->first);
+            if((c >= first) && (c <= (uint8_t)pgm_read_byte(&OLED_gfxFont->last))) {
                 GFXglyph *glyph = &(((GFXglyph *)pgm_read_pointer(
-                  &gfxFont->glyph))[c - first]);
+                  &OLED_gfxFont->glyph))[c - first]);
                 uint8_t   w     = pgm_read_byte(&glyph->width),
                           h     = pgm_read_byte(&glyph->height);
                 if((w > 0) && (h > 0)) { // Is there an associated bitmap?
                     int16_t xo = (int8_t)pgm_read_byte(&glyph->xOffset); // sic
-                    if(wrap && ((cursor_x + textsize * (xo + w)) > _width)) {
-                        cursor_x  = 0;
-                        cursor_y += (int16_t)textsize *
-                          (uint8_t)pgm_read_byte(&gfxFont->yAdvance);
+                    if(OLED_wrap && ((OLED_cursor_x + OLED_textsize * (xo + w)) > OLED_curWidth)) {
+                        OLED_cursor_x  = 0;
+                        OLED_cursor_y += (int16_t)OLED_textsize *
+                          (uint8_t)pgm_read_byte(&OLED_gfxFont->yAdvance);
                     }
-                    drawChar(cursor_x, cursor_y, c, textcolor, textbgcolor, textsize);
+                    OLED_drawChar(OLED_cursor_x, OLED_cursor_y, c, OLED_textcolor, OLED_textbgcolor, OLED_textsize);
                 }
-                cursor_x += (uint8_t)pgm_read_byte(&glyph->xAdvance) * (int16_t)textsize;
+                OLED_cursor_x += (uint8_t)pgm_read_byte(&glyph->xAdvance) * (int16_t)OLED_textsize;
             }
         }
 
@@ -665,70 +633,58 @@ void OLED_write(uint8_t c) {
 }
 
 void OLED_setCursor(int16_t x, int16_t y) {
-    cursor_x = x;
-    cursor_y = y;
-}
-
-int16_t OLED_getCursorX(void) const {
-    return cursor_x;
-}
-
-int16_t OLED_getCursorY(void) const {
-    return cursor_y;
+    OLED_cursor_x = x;
+    OLED_cursor_y = y;
 }
 
 void OLED_setTextSize(uint8_t s) {
-    textsize = (s > 0) ? s : 1;
+    OLED_textsize = (s > 0) ? s : 1;
 }
 
 void OLED_setTextColor(uint16_t c) {
     // For 'transparent' background, we'll set the bg
     // to the same as fg instead of using a flag
-    textcolor = textbgcolor = c;
+    OLED_textcolor = OLED_textbgcolor = c;
 }
 
-void OLED_setTextColor(uint16_t c, uint16_t b) {
-    textcolor   = c;
-    textbgcolor = b;
+void OLED_setTextColorBg(uint16_t c, uint16_t b) {
+    OLED_textcolor   = c;
+    OLED_textbgcolor = b;
 }
 
-void OLED_setTextWrap(boolean w) {
-    wrap = w;
-}
-
-uint8_t OLED_getRotation(void) const {
-    return rotation;
+void OLED_setTextWrap(bool w) {
+    OLED_wrap = w;
 }
 
 void OLED_setRotation(uint8_t x) {
-    rotation = (x & 3);
-    switch(rotation) {
+    OLED_rotation = (x & 3);
+    switch(OLED_rotation) {
         case 0:
         case 2:
-            _width  = WIDTH;
-            _height = HEIGHT;
+            OLED_curWidth  = OLED_physWidth;
+            OLED_curHeight = OLED_physHeight;
             break;
         case 1:
         case 3:
-            _width  = HEIGHT;
-            _height = WIDTH;
+            OLED_curWidth  = OLED_physHeight;
+            OLED_curHeight = OLED_physWidth;
             break;
     }
 }
 
-void OLED_setFont(const GFXfont *f) {
+void OLED_setFont(GFXfont *f) {
     if(f) {            // Font struct pointer passed in?
-        if(!gfxFont) { // And no current font struct?
+        if(!OLED_gfxFont) { // And no current font struct?
             // Switching from classic to new font behavior.
             // Move cursor pos down 6 pixels so it's on baseline.
-            cursor_y += 6;
+            OLED_cursor_y += 6;
         }
-    } else if(gfxFont) { // NULL passed.  Current font struct defined?
+    } else if(OLED_gfxFont) { // NULL passed.  Current font struct defined?
         // Switching from new to classic font behavior.
         // Move cursor pos up 6 pixels so it's at top-left of char.
-        cursor_y -= 6;
+        OLED_cursor_y -= 6;
     }
-    gfxFont = (GFXfont *)f;
+    OLED_gfxFont = (GFXfont *)f;
 }
 
 // Broke this out as it's used by both the PROGMEM- and RAM-resident
@@ -736,27 +692,27 @@ void OLED_setFont(const GFXfont *f) {
 void OLED_charBounds(char c, int16_t *x, int16_t *y,
   int16_t *minx, int16_t *miny, int16_t *maxx, int16_t *maxy) {
 
-    if(gfxFont) {
+    if(OLED_gfxFont) {
 
         if(c == '\n') { // Newline?
             *x  = 0;    // Reset x to zero, advance y by one line
-            *y += textsize * (uint8_t)pgm_read_byte(&gfxFont->yAdvance);
+            *y += OLED_textsize * (uint8_t)pgm_read_byte(&OLED_gfxFont->yAdvance);
         } else if(c != '\r') { // Not a carriage return; is normal char
-            uint8_t first = pgm_read_byte(&gfxFont->first),
-                    last  = pgm_read_byte(&gfxFont->last);
+            uint8_t first = pgm_read_byte(&OLED_gfxFont->first),
+                    last  = pgm_read_byte(&OLED_gfxFont->last);
             if((c >= first) && (c <= last)) { // Char present in this font?
                 GFXglyph *glyph = &(((GFXglyph *)pgm_read_pointer(
-                  &gfxFont->glyph))[c - first]);
+                  &OLED_gfxFont->glyph))[c - first]);
                 uint8_t gw = pgm_read_byte(&glyph->width),
                         gh = pgm_read_byte(&glyph->height),
                         xa = pgm_read_byte(&glyph->xAdvance);
                 int8_t  xo = pgm_read_byte(&glyph->xOffset),
                         yo = pgm_read_byte(&glyph->yOffset);
-                if(wrap && ((*x+(((int16_t)xo+gw)*textsize)) > _width)) {
+                if(OLED_wrap && ((*x+(((int16_t)xo+gw)*OLED_textsize)) > OLED_curWidth)) {
                     *x  = 0; // Reset x to zero, advance y by one line
-                    *y += textsize * (uint8_t)pgm_read_byte(&gfxFont->yAdvance);
+                    *y += OLED_textsize * (uint8_t)pgm_read_byte(&OLED_gfxFont->yAdvance);
                 }
-                int16_t ts = (int16_t)textsize,
+                int16_t ts = (int16_t)OLED_textsize,
                         x1 = *x + xo * ts,
                         y1 = *y + yo * ts,
                         x2 = x1 + gw * ts - 1,
@@ -773,20 +729,20 @@ void OLED_charBounds(char c, int16_t *x, int16_t *y,
 
         if(c == '\n') {                     // Newline?
             *x  = 0;                        // Reset x to zero,
-            *y += textsize * 8;             // advance y one line
+            *y += OLED_textsize * 8;             // advance y one line
             // min/max x/y unchaged -- that waits for next 'normal' character
         } else if(c != '\r') {  // Normal char; ignore carriage returns
-            if(wrap && ((*x + textsize * 6) > _width)) { // Off right?
+            if(OLED_wrap && ((*x + OLED_textsize * 6) > OLED_curWidth)) { // Off right?
                 *x  = 0;                    // Reset x to zero,
-                *y += textsize * 8;         // advance y one line
+                *y += OLED_textsize * 8;         // advance y one line
             }
-            int x2 = *x + textsize * 6 - 1, // Lower-right pixel of char
-                y2 = *y + textsize * 8 - 1;
+            int x2 = *x + OLED_textsize * 6 - 1, // Lower-right pixel of char
+                y2 = *y + OLED_textsize * 8 - 1;
             if(x2 > *maxx) *maxx = x2;      // Track max x, y
             if(y2 > *maxy) *maxy = y2;
             if(*x < *minx) *minx = *x;      // Track min x, y
             if(*y < *miny) *miny = *y;
-            *x += textsize * 6;             // Advance x one char
+            *x += OLED_textsize * 6;             // Advance x one char
         }
     }
 }
@@ -800,10 +756,10 @@ void OLED_getTextBounds(char *str, int16_t x, int16_t y,
     *y1 = y;
     *w  = *h = 0;
 
-    int16_t minx = _width, miny = _height, maxx = -1, maxy = -1;
+    int16_t minx = OLED_curWidth, miny = OLED_curHeight, maxx = -1, maxy = -1;
 
     while((c = *str++))
-        charBounds(c, &x, &y, &minx, &miny, &maxx, &maxy);
+        OLED_charBounds(c, &x, &y, &minx, &miny, &maxx, &maxy);
 
     if(maxx >= minx) {
         *x1 = minx;
