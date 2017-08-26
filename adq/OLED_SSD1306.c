@@ -134,7 +134,7 @@ void OLED_drawPixel(int16_t x, int16_t y, uint16_t color) {
 
 }
 
-void OLED_begin(uint8_t vccstate, uint8_t i2caddr, bool reset) {
+void OLED_init(uint8_t vccstate, uint8_t i2caddr, bool reset) {
   _vccstate = vccstate;
   _i2caddr = i2caddr;
 

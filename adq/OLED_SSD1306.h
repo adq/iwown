@@ -18,7 +18,7 @@ All text above, and the splash screen must be included in any redistribution
 #ifndef _OLED__SSD1306_H_
 #define _OLED__SSD1306_H_
 
-// #include <OLED_GFX.h>
+#include "OLED_GFX.h"
 
 #define BLACK 0
 #define WHITE 1
@@ -113,7 +113,7 @@ All text above, and the splash screen must be included in any redistribution
 #define SSD1306_VERTICAL_AND_RIGHT_HORIZONTAL_SCROLL 0x29
 #define SSD1306_VERTICAL_AND_LEFT_HORIZONTAL_SCROLL 0x2A
 
-extern void OLED_begin(uint8_t switchvcc, uint8_t i2caddr, bool reset);
+extern void OLED_init();
 extern void OLED_command(uint8_t c);
 
 extern void OLED_clearDisplay(void);
