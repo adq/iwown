@@ -24,10 +24,6 @@ All text above, and the splash screen must be included in any redistribution
 #define WHITE 1
 #define INVERSE 2
 
-#define SSD1306_I2C_ADDRESS   0x3C  // 011110+SA0+RW - 0x3C or 0x3D
-// Address for 128x32 is 0x3C
-// Address for 128x64 is 0x3D (default) or 0x3C (if SA0 is grounded)
-
 /*=========================================================================
     SSD1306 Displays
     -----------------------------------------------------------------------
@@ -46,6 +42,8 @@ All text above, and the splash screen must be included in any redistribution
    #define SSD1306_128_32
 //   #define SSD1306_96_16
 /*=========================================================================*/
+
+#define SSD1306_EXTERNALVCC
 
 #if defined SSD1306_128_64 && defined SSD1306_128_32
   #error "Only one SSD1306 display can be specified at once in SSD1306.h"
@@ -100,9 +98,6 @@ All text above, and the splash screen must be included in any redistribution
 #define SSD1306_SEGREMAP 0xA0
 
 #define SSD1306_CHARGEPUMP 0x8D
-
-#define SSD1306_EXTERNALVCC 0x1
-#define SSD1306_SWITCHCAPVCC 0x2
 
 // Scrolling #defines
 #define SSD1306_ACTIVATE_SCROLL 0x2F

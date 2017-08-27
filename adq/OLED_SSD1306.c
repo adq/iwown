@@ -21,10 +21,15 @@ All text above, and the splash screen below must be included in any redistributi
 #include <stdlib.h>
 #include <string.h>
 #include "nrf_gpio.h"
+#include "nrf_delay.h"
 #include "i5plus.h"
 #include "twi_master.h"
 #include "OLED_GFX.h"
 #include "OLED_SSD1306.h"
+
+#include <stdio.h>
+#include "simple_uart.h"
+
 
 // the memory buffer for the LCD
 
@@ -142,67 +147,34 @@ void OLED_drawPixel(int16_t x, int16_t y, uint16_t color) {
 void OLED_init() {
   twi_master_init(twi_oled);
 
-  // FIXME handle extra pins etc
-  /*
+  nrf_gpio_pin_set(GPIO_OLED_RES);
+  NRF_GPIO->PIN_CNF[GPIO_OLED_RES] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos) \
+                                    |(GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)    \
+                                    |(GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)  \
+                                    |(GPIO_PIN_CNF_INPUT_Disconnect << GPIO_PIN_CNF_INPUT_Pos) \
+                                    |(GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
 
-  _vccstate = vccstate;
-  _i2caddr = i2caddr;
+  nrf_gpio_pin_set(GPIO_OLED_POWER);
+  NRF_GPIO->PIN_CNF[GPIO_OLED_POWER] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos) \
+                                      |(GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)    \
+                                      |(GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)  \
+                                      |(GPIO_PIN_CNF_INPUT_Disconnect << GPIO_PIN_CNF_INPUT_Pos) \
+                                      |(GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
 
-  // set pin directions
-  if (sid != -1){
-    pinMode(dc, OUTPUT);
-    pinMode(cs, OUTPUT);
-#ifdef HAVE_PORTREG
-    csport      = portOutputRegister(digitalPinToPort(cs));
-    cspinmask   = digitalPinToBitMask(cs);
-    dcport      = portOutputRegister(digitalPinToPort(dc));
-    dcpinmask   = digitalPinToBitMask(dc);
-#endif
-    if (!hwSPI){
-      // set pins for software-SPI
-      pinMode(sid, OUTPUT);
-      pinMode(sclk, OUTPUT);
-#ifdef HAVE_PORTREG
-      clkport     = portOutputRegister(digitalPinToPort(sclk));
-      clkpinmask  = digitalPinToBitMask(sclk);
-      mosiport    = portOutputRegister(digitalPinToPort(sid));
-      mosipinmask = digitalPinToBitMask(sid);
-#endif
-      }
-    if (hwSPI){
-      SPI.begin();
-#ifdef SPI_HAS_TRANSACTION
-      SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
-#else
-      SPI.setClockDivider (4);
-#endif
-    }
-  }
-  else
-  {
-    // I2C Init
-    Wire.begin();
-#ifdef __SAM3X8E__
-    // Force 400 KHz I2C, rawr! (Uses pins 20, 21 for SDA, SCL)
-    TWI1->TWI_CWGR = 0;
-    TWI1->TWI_CWGR = ((VARIANT_MCK / (2 * 400000)) - 4) * 0x101;
-#endif
-  }
-  if ((reset) && (rst >= 0)) {
-    // Setup reset pin direction (used by both SPI and I2C)
-    pinMode(rst, OUTPUT);
-    digitalWrite(rst, HIGH);
-    // VDD (3.3V) goes high at start, lets just chill for a ms
-    delay(1);
-    // bring reset low
-    digitalWrite(rst, LOW);
-    // wait 10ms
-    delay(10);
-    // bring out of reset
-    digitalWrite(rst, HIGH);
-    // turn on VCC (9V?)
-  }
-*/
+  // hard reset sequence
+  nrf_delay_us(1000);
+  nrf_gpio_pin_clear(GPIO_OLED_RES);
+  nrf_delay_us(10000);
+  nrf_gpio_pin_set(GPIO_OLED_RES);
+
+  // enable power for the moment
+  nrf_gpio_pin_set(GPIO_OLED_POWER);
+
+
+
+  char txt[100];
+  sprintf(txt, "OLED\r\n");
+  simple_uart_putstring((uint8_t*) txt);
 
   // Init sequence
   OLED_command(SSD1306_DISPLAYOFF);                    // 0xAE
@@ -216,10 +188,11 @@ void OLED_init() {
   OLED_command(0x0);                                   // no offset
   OLED_command(SSD1306_SETSTARTLINE | 0x0);            // line #0
   OLED_command(SSD1306_CHARGEPUMP);                    // 0x8D
-  if (vccstate == SSD1306_EXTERNALVCC)
-    { OLED_command(0x10); }
-  else
-    { OLED_command(0x14); }
+  #if defined SSD1306_EXTERNALVCC
+    OLED_command(0x10);
+  #else
+    OLED_command(0x14);
+  #endif
   OLED_command(SSD1306_MEMORYMODE);                    // 0x20
   OLED_command(0x00);                                  // 0x0 act like ks0108
   OLED_command(SSD1306_SEGREMAP | 0x1);
@@ -235,10 +208,11 @@ void OLED_init() {
   OLED_command(SSD1306_SETCOMPINS);                    // 0xDA
   OLED_command(0x12);
   OLED_command(SSD1306_SETCONTRAST);                   // 0x81
-  if (vccstate == SSD1306_EXTERNALVCC)
-    { OLED_command(0x9F); }
-  else
-    { OLED_command(0xCF); }
+  #if defined SSD1306_EXTERNALVCC
+    OLED_command(0x9F)};
+  #else
+    OLED_command(0xCF);
+  #endif
 
 #elif defined SSD1306_96_16
   OLED_command(SSD1306_SETCOMPINS);                    // 0xDA
@@ -252,10 +226,11 @@ void OLED_init() {
 #endif
 
   OLED_command(SSD1306_SETPRECHARGE);                  // 0xd9
-  if (vccstate == SSD1306_EXTERNALVCC)
-    { OLED_command(0x22); }
-  else
-    { OLED_command(0xF1); }
+  #if defined SSD1306_EXTERNALVCC
+    OLED_command(0x22);
+  #else
+    OLED_command(0xF1);
+  #endif
   OLED_command(SSD1306_SETVCOMDETECT);                 // 0xDB
   OLED_command(0x40);
   OLED_command(SSD1306_DISPLAYALLON_RESUME);           // 0xA4
@@ -278,7 +253,7 @@ void OLED_invertDisplay(bool i) {
 void OLED_command(uint8_t c) {
   uint8_t txbuf[1];
   txbuf[0] = c;
-  twi_master_transfer(twi_oled, I2C_OLED, txbuf, 1, true);
+  bool status = twi_master_transfer(twi_oled, I2C_OLED, txbuf, 1, true);
 }
 
 // startscrollright
@@ -358,11 +333,11 @@ void OLED_dim(bool dim) {
   if (dim) {
     contrast = 0; // Dimmed display
   } else {
-    if (_vccstate == SSD1306_EXTERNALVCC) {
+    #if defined SSD1306_EXTERNALVCC
       contrast = 0x9F;
-    } else {
+    #else
       contrast = 0xCF;
-    }
+    #endif
   }
   // the range of contrast to too small to be really useful
   // it is useful to dim the display

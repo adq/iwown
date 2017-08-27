@@ -78,10 +78,12 @@ int main(void)
     eeprom_init();
     fontrom_init();
     accel_init();
-    oled_init();
+    OLED_init();
 
     advertising_start();
     // led_on();
+
+    OLED_updateDisplay();
 
     // uint8_t buf[10];
     // buf[0] = 0x0d;
