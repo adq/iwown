@@ -154,7 +154,7 @@ void OLED_init() {
                                     |(GPIO_PIN_CNF_INPUT_Disconnect << GPIO_PIN_CNF_INPUT_Pos) \
                                     |(GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
 
-  nrf_gpio_pin_set(GPIO_OLED_POWER);
+  nrf_gpio_pin_clear(GPIO_OLED_POWER);
   NRF_GPIO->PIN_CNF[GPIO_OLED_POWER] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos) \
                                       |(GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)    \
                                       |(GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)  \
@@ -169,8 +169,6 @@ void OLED_init() {
 
   // enable power for the moment
   nrf_gpio_pin_set(GPIO_OLED_POWER);
-
-
 
   char txt[100];
   sprintf(txt, "OLED\r\n");
@@ -251,9 +249,10 @@ void OLED_invertDisplay(bool i) {
 }
 
 void OLED_command(uint8_t c) {
-  uint8_t txbuf[1];
-  txbuf[0] = c;
-  bool status = twi_master_transfer(twi_oled, I2C_OLED, txbuf, 1, true);
+  uint8_t txbuf[2];
+  txbuf[0] = 0x00;  // control byte
+  txbuf[1] = c;
+  twi_master_transfer(twi_oled, I2C_OLED, txbuf, 2, true);
 }
 
 // startscrollright
@@ -363,8 +362,8 @@ void OLED_updateDisplay() {
   #endif
 
   uint8_t txbuf[17];
-  txbuf[0] = 0x40;
-  for (uint16_t i=0; i<(SSD1306_LCDWIDTH*SSD1306_LCDHEIGHT/8); i++) {
+  txbuf[0] = 0x40; // control byte
+  for (uint16_t i=0; i<(SSD1306_LCDWIDTH*SSD1306_LCDHEIGHT/8); i+=16) {
     memcpy(txbuf+1, buffer + i, 16);
     twi_master_transfer(twi_oled, I2C_OLED, txbuf, 17, true);
   }
