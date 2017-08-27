@@ -82,6 +82,11 @@ bool twi_master_init(twi_master_config_t twi_master_config);
  */
 bool twi_master_transfer(twi_master_config_t twi_master_config, uint8_t address, uint8_t *data, uint8_t data_length, bool issue_stop_condition);
 
+bool twi_master_issue_startcondition(twi_master_config_t twi_master_config);
+bool twi_master_issue_stopcondition(twi_master_config_t twi_master_config);
+bool twi_master_clock_byte(twi_master_config_t twi_master_config, uint_fast8_t databyte);
+bool twi_master_clock_byte_in(twi_master_config_t twi_master_config, uint8_t * databyte, bool ack);
+
 /**
  *@}
  **/

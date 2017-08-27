@@ -49,10 +49,6 @@
 #endif
 
 static bool twi_master_clear_bus(twi_master_config_t twi_master_config);
-static bool twi_master_issue_startcondition(twi_master_config_t twi_master_config);
-static bool twi_master_issue_stopcondition(twi_master_config_t twi_master_config);
-static bool twi_master_clock_byte(twi_master_config_t twi_master_config, uint_fast8_t databyte);
-static bool twi_master_clock_byte_in(twi_master_config_t twi_master_config, uint8_t * databyte, bool ack);
 static bool twi_master_wait_while_scl_low(twi_master_config_t twi_master_config);
 
 bool twi_master_init(twi_master_config_t twi_master_config)
@@ -170,7 +166,7 @@ static bool twi_master_clear_bus(twi_master_config_t twi_master_config)
  * @retval false Timeout detected
  * @retval true Clocking succeeded
  */
-static bool twi_master_issue_startcondition(twi_master_config_t twi_master_config)
+bool twi_master_issue_startcondition(twi_master_config_t twi_master_config)
 {
 #if 0
     if (TWI_SCL_READ(twi_master_config) == 1 && TWI_SDA_READ(twi_master_config) == 1)
@@ -244,7 +240,7 @@ static bool twi_master_issue_startcondition(twi_master_config_t twi_master_confi
  * @retval false Timeout detected
  * @retval true Clocking succeeded
  */
-static bool twi_master_issue_stopcondition(twi_master_config_t twi_master_config)
+bool twi_master_issue_stopcondition(twi_master_config_t twi_master_config)
 {
 #if 0
     if (TWI_SCL_READ() == 1 && TWI_SDA_READ() == 1)
@@ -317,7 +313,7 @@ static bool twi_master_issue_stopcondition(twi_master_config_t twi_master_config
  * @retval true Slave acknowledged byte.
  * @retval false Timeout or slave didn't acknowledge byte.
  */
-static bool twi_master_clock_byte(twi_master_config_t twi_master_config, uint_fast8_t databyte)
+bool twi_master_clock_byte(twi_master_config_t twi_master_config, uint_fast8_t databyte)
 {
     bool transfer_succeeded = true;
 
@@ -391,7 +387,7 @@ static bool twi_master_clock_byte(twi_master_config_t twi_master_config, uint_fa
  * @retval true Byte read succesfully
  * @retval false Timeout detected
  */
-static bool twi_master_clock_byte_in(twi_master_config_t twi_master_config, uint8_t *databyte, bool ack)
+bool twi_master_clock_byte_in(twi_master_config_t twi_master_config, uint8_t *databyte, bool ack)
 {
     uint_fast8_t byte_read          = 0;
     bool         transfer_succeeded = true;

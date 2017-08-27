@@ -341,11 +341,17 @@ void OLED_updateDisplay() {
     OLED_command(1); // Page end address
   #endif
 
-  uint8_t txbuf[17];
-  txbuf[0] = 0x40; // control byte
-  for (uint16_t i=0; i<(SSD1306_LCDWIDTH*SSD1306_LCDHEIGHT/8); i+=16) {
-    memcpy(txbuf+1, buffer + i, 16);
-    twi_master_transfer(twi_oled, I2C_OLED, txbuf, 17, true);
+  uint8_t *tmpbuf = buffer;
+  for (uint16_t i=0; i<(SSD1306_LCDWIDTH*SSD1306_LCDHEIGHT/8); i+=128) {
+    twi_master_issue_startcondition(twi_oled);
+    twi_master_clock_byte(twi_oled, I2C_OLED);
+    twi_master_clock_byte(twi_oled, 0x40); // control byte
+    int len = 128;
+    while (len--) {
+        twi_master_clock_byte(twi_oled, *tmpbuf);
+        tmpbuf++;
+    }
+    twi_master_issue_stopcondition(twi_oled);
   }
 }
 
