@@ -62,7 +62,6 @@ twi_sw_master.c \
 eeprom.c \
 fontrom.c \
 accel.c \
-oled.c \
 OLED_GFX.c \
 OLED_SSD1306.c
 

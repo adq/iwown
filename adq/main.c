@@ -22,7 +22,7 @@
 #include "fontrom.h"
 #include "motor.h"
 #include "accel.h"
-#include "oled.h"
+#include "OLED_SSD1306.h"
 #include "app_timer.h"
 #include "app_gpiote.h"
 #include "app_scheduler.h"

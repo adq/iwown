@@ -116,15 +116,15 @@ All text above, and the splash screen must be included in any redistribution
 extern void OLED_init();
 extern void OLED_command(uint8_t c);
 
-extern void OLED_clearDisplay(void);
-extern void OLED_display();
+extern void OLED_clearDisplay();
+extern void OLED_updateDisplay();
 
 extern void OLED_startscrollright(uint8_t start, uint8_t stop);
 extern void OLED_startscrollleft(uint8_t start, uint8_t stop);
 
 extern void OLED_startscrolldiagright(uint8_t start, uint8_t stop);
 extern void OLED_startscrolldiagleft(uint8_t start, uint8_t stop);
-extern void OLED_stopscroll(void);
+extern void OLED_stopscroll();
 
 extern void OLED_dim(bool dim);
 

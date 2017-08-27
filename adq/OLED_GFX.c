@@ -121,6 +121,7 @@ void OLED_writeLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
     }
 }
 
+/*
 // (x,y) is topmost point; if unsure, calling function
 // should sort endpoints or call drawLine() instead
 void OLED_drawFastVLine(int16_t x, int16_t y,
@@ -128,7 +129,9 @@ void OLED_drawFastVLine(int16_t x, int16_t y,
     // Update in subclasses if desired!
     OLED_writeLine(x, y, x, y+h-1, color);
 }
+*/
 
+/*
 // (x,y) is leftmost point; if unsure, calling function
 // should sort endpoints or call drawLine() instead
 void OLED_drawFastHLine(int16_t x, int16_t y,
@@ -136,6 +139,7 @@ void OLED_drawFastHLine(int16_t x, int16_t y,
     // Update in subclasses if desired!
     OLED_writeLine(x, y, x+w-1, y, color);
 }
+*/
 
 void OLED_fillRect(int16_t x, int16_t y, int16_t w, int16_t h,
         uint16_t color) {

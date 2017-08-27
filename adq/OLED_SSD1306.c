@@ -20,6 +20,9 @@ All text above, and the splash screen below must be included in any redistributi
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "nrf_gpio.h"
+#include "i5plus.h"
+#include "twi_master.h"
 #include "OLED_GFX.h"
 #include "OLED_SSD1306.h"
 
@@ -102,6 +105,8 @@ static uint8_t buffer[SSD1306_LCDHEIGHT * SSD1306_LCDWIDTH / 8] = {
 static void OLED_drawFastVLineInternal(int16_t x, int16_t __y, int16_t __h, uint16_t color);
 static void OLED_drawFastHLineInternal(int16_t x, int16_t y, int16_t w, uint16_t color);
 
+static twi_master_config_t twi_oled = {TWI_Pin_SCL:GPIO_OLED_SCL, TWI_Pin_SDA:GPIO_OLED_SDA};
+
 
 // the most basic function, set a single pixel
 void OLED_drawPixel(int16_t x, int16_t y, uint16_t color) {
@@ -134,7 +139,12 @@ void OLED_drawPixel(int16_t x, int16_t y, uint16_t color) {
 
 }
 
-void OLED_init(uint8_t vccstate, uint8_t i2caddr, bool reset) {
+void OLED_init() {
+  twi_master_init(twi_oled);
+
+  // FIXME handle extra pins etc
+  /*
+
   _vccstate = vccstate;
   _i2caddr = i2caddr;
 
@@ -192,6 +202,7 @@ void OLED_init(uint8_t vccstate, uint8_t i2caddr, bool reset) {
     digitalWrite(rst, HIGH);
     // turn on VCC (9V?)
   }
+*/
 
   // Init sequence
   OLED_command(SSD1306_DISPLAYOFF);                    // 0xAE
@@ -265,34 +276,9 @@ void OLED_invertDisplay(bool i) {
 }
 
 void OLED_command(uint8_t c) {
-  if (sid != -1)
-  {
-    // SPI
-#ifdef HAVE_PORTREG
-    *csport |= cspinmask;
-    *dcport &= ~dcpinmask;
-    *csport &= ~cspinmask;
-#else
-    digitalWrite(cs, HIGH);
-    digitalWrite(dc, LOW);
-    digitalWrite(cs, LOW);
-#endif
-    fastSPIwrite(c);
-#ifdef HAVE_PORTREG
-    *csport |= cspinmask;
-#else
-    digitalWrite(cs, HIGH);
-#endif
-  }
-  else
-  {
-    // I2C
-    uint8_t control = 0x00;   // Co = 0, D/C = 0
-    Wire.beginTransmission(_i2caddr);
-    Wire.write(control);
-    Wire.write(c);
-    Wire.endTransmission();
-  }
+  uint8_t txbuf[1];
+  txbuf[0] = c;
+  twi_master_transfer(twi_oled, I2C_OLED, txbuf, 1, true);
 }
 
 // startscrollright
@@ -384,7 +370,7 @@ void OLED_dim(bool dim) {
   OLED_command(contrast);
 }
 
-void OLED_display(void) {
+void OLED_updateDisplay() {
   OLED_command(SSD1306_COLUMNADDR);
   OLED_command(0);   // Column start address (0 = reset)
   OLED_command(SSD1306_LCDWIDTH-1); // Column end address (127 = reset)
@@ -401,54 +387,11 @@ void OLED_display(void) {
     OLED_command(1); // Page end address
   #endif
 
-  if (sid != -1)
-  {
-    // SPI
-#ifdef HAVE_PORTREG
-    *csport |= cspinmask;
-    *dcport |= dcpinmask;
-    *csport &= ~cspinmask;
-#else
-    digitalWrite(cs, HIGH);
-    digitalWrite(dc, HIGH);
-    digitalWrite(cs, LOW);
-#endif
-
-    for (uint16_t i=0; i<(SSD1306_LCDWIDTH*SSD1306_LCDHEIGHT/8); i++) {
-      fastSPIwrite(buffer[i]);
-    }
-#ifdef HAVE_PORTREG
-    *csport |= cspinmask;
-#else
-    digitalWrite(cs, HIGH);
-#endif
-  }
-  else
-  {
-    // save I2C bitrate
-#ifdef TWBR
-    uint8_t twbrbackup = TWBR;
-    TWBR = 12; // upgrade to 400KHz!
-#endif
-
-    //Serial.println(TWBR, DEC);
-    //Serial.println(TWSR & 0x3, DEC);
-
-    // I2C
-    for (uint16_t i=0; i<(SSD1306_LCDWIDTH*SSD1306_LCDHEIGHT/8); i++) {
-      // send a bunch of data in one xmission
-      Wire.beginTransmission(_i2caddr);
-      WIRE_WRITE(0x40);
-      for (uint8_t x=0; x<16; x++) {
-        WIRE_WRITE(buffer[i]);
-        i++;
-      }
-      i--;
-      Wire.endTransmission();
-    }
-#ifdef TWBR
-    TWBR = twbrbackup;
-#endif
+  uint8_t txbuf[17];
+  txbuf[0] = 0x40;
+  for (uint16_t i=0; i<(SSD1306_LCDWIDTH*SSD1306_LCDHEIGHT/8); i++) {
+    memcpy(txbuf+1, buffer + i, 16);
+    twi_master_transfer(twi_oled, I2C_OLED, txbuf, 17, true);
   }
 }
 
