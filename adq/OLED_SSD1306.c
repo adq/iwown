@@ -303,25 +303,14 @@ void OLED_stopscroll(void) {
   OLED_command(SSD1306_DEACTIVATE_SCROLL);
 }
 
-// Dim the display
-// dim = true: display is dimmed
-// dim = false: display is normal
-void OLED_dim(bool dim) {
-  uint8_t contrast;
+void OLED_on() {
+  nrf_gpio_pin_set(GPIO_OLED_POWER);
+  OLED_command(SSD1306_DISPLAYON);
+}
 
-  if (dim) {
-    contrast = 0; // Dimmed display
-  } else {
-    #if defined SSD1306_EXTERNALVCC
-      contrast = 0x9F;
-    #else
-      contrast = 0xCF;
-    #endif
-  }
-  // the range of contrast to too small to be really useful
-  // it is useful to dim the display
-  OLED_command(SSD1306_SETCONTRAST);
-  OLED_command(contrast);
+void OLED_off() {
+  OLED_command(SSD1306_DISPLAYOFF);
+  nrf_gpio_pin_clear(GPIO_OLED_POWER);
 }
 
 void OLED_updateDisplay() {

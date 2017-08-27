@@ -121,6 +121,7 @@ extern void OLED_startscrolldiagright(uint8_t start, uint8_t stop);
 extern void OLED_startscrolldiagleft(uint8_t start, uint8_t stop);
 extern void OLED_stopscroll();
 
-extern void OLED_dim(bool dim);
+extern void OLED_on();
+extern void OLED_off();
 
 #endif /* _OLED__SSD1306_H_ */
