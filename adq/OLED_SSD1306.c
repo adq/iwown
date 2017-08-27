@@ -146,38 +146,33 @@ void OLED_drawPixel(int16_t x, int16_t y, uint16_t color) {
 
 void OLED_init() {
   twi_master_init(twi_oled);
-
-  nrf_gpio_pin_set(GPIO_OLED_RES);
-  NRF_GPIO->PIN_CNF[GPIO_OLED_RES] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos) \
-                                    |(GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)    \
-                                    |(GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)  \
-                                    |(GPIO_PIN_CNF_INPUT_Disconnect << GPIO_PIN_CNF_INPUT_Pos) \
-                                    |(GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
-
-  nrf_gpio_pin_clear(GPIO_OLED_POWER);
-  NRF_GPIO->PIN_CNF[GPIO_OLED_POWER] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos) \
-                                      |(GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)    \
-                                      |(GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)  \
-                                      |(GPIO_PIN_CNF_INPUT_Disconnect << GPIO_PIN_CNF_INPUT_Pos) \
-                                      |(GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
-
-  // hard reset sequence
-  nrf_delay_us(1000);
-  nrf_gpio_pin_clear(GPIO_OLED_RES);
-  nrf_delay_us(10000);
-  nrf_gpio_pin_set(GPIO_OLED_RES);
-
-  // enable power for the moment
-  nrf_gpio_pin_set(GPIO_OLED_POWER);
-
-  // setup internal OLED variables
   OLED_physWidth = SSD1306_LCDWIDTH;
   OLED_curWidth  = SSD1306_LCDWIDTH;
   OLED_physHeight = SSD1306_LCDHEIGHT;
   OLED_curHeight = SSD1306_LCDHEIGHT;
 
+  // hard reset sequence
+  NRF_GPIO->PIN_CNF[GPIO_OLED_RES] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos) \
+                                    |(GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)    \
+                                    |(GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)  \
+                                    |(GPIO_PIN_CNF_INPUT_Disconnect << GPIO_PIN_CNF_INPUT_Pos) \
+                                    |(GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
+  nrf_gpio_pin_set(GPIO_OLED_RES);
+  nrf_delay_us(10);
+  nrf_gpio_pin_clear(GPIO_OLED_RES);
+  nrf_delay_us(10);
+  NRF_GPIO->PIN_CNF[GPIO_OLED_POWER] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos) \
+                                      |(GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)    \
+                                      |(GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)  \
+                                      |(GPIO_PIN_CNF_INPUT_Disconnect << GPIO_PIN_CNF_INPUT_Pos) \
+                                      |(GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
+  nrf_gpio_pin_set(GPIO_OLED_POWER);
+  nrf_delay_ms(100);
+  nrf_gpio_pin_set(GPIO_OLED_RES);
+
   // Init sequence
   OLED_command(SSD1306_DISPLAYOFF);                    // 0xAE
+
   OLED_command(SSD1306_SETDISPLAYCLOCKDIV);            // 0xD5
   OLED_command(0x80);                                  // the suggested ratio 0x80
 
@@ -186,59 +181,42 @@ void OLED_init() {
 
   OLED_command(SSD1306_SETDISPLAYOFFSET);              // 0xD3
   OLED_command(0x0);                                   // no offset
+
   OLED_command(SSD1306_SETSTARTLINE | 0x0);            // line #0
   OLED_command(SSD1306_CHARGEPUMP);                    // 0x8D
-  #if defined SSD1306_EXTERNALVCC
-    OLED_command(0x10);
-  #else
-    OLED_command(0x14);
-  #endif
+  OLED_command(0x14);
+
   OLED_command(SSD1306_MEMORYMODE);                    // 0x20
   OLED_command(0x00);                                  // 0x0 act like ks0108
+
   OLED_command(SSD1306_SEGREMAP | 0x1);
+
   OLED_command(SSD1306_COMSCANDEC);
 
- #if defined SSD1306_128_32
   OLED_command(SSD1306_SETCOMPINS);                    // 0xDA
   OLED_command(0x02);
-  OLED_command(SSD1306_SETCONTRAST);                   // 0x81
-  OLED_command(0x8F);
 
-#elif defined SSD1306_128_64
-  OLED_command(SSD1306_SETCOMPINS);                    // 0xDA
-  OLED_command(0x12);
   OLED_command(SSD1306_SETCONTRAST);                   // 0x81
-  #if defined SSD1306_EXTERNALVCC
-    OLED_command(0x9F)};
-  #else
-    OLED_command(0xCF);
-  #endif
-
-#elif defined SSD1306_96_16
-  OLED_command(SSD1306_SETCOMPINS);                    // 0xDA
-  OLED_command(0x2);   //ada x12
-  OLED_command(SSD1306_SETCONTRAST);                   // 0x81
-  if (vccstate == SSD1306_EXTERNALVCC)
-    { OLED_command(0x10); }
-  else
-    { OLED_command(0xAF); }
-
-#endif
+  OLED_command(0xFF);
 
   OLED_command(SSD1306_SETPRECHARGE);                  // 0xd9
-  #if defined SSD1306_EXTERNALVCC
-    OLED_command(0x22);
-  #else
-    OLED_command(0xF1);
-  #endif
+  OLED_command(0x04);
+
   OLED_command(SSD1306_SETVCOMDETECT);                 // 0xDB
-  OLED_command(0x40);
+  OLED_command(0x30);
+
   OLED_command(SSD1306_DISPLAYALLON_RESUME);           // 0xA4
+
   OLED_command(SSD1306_NORMALDISPLAY);                 // 0xA6
 
   OLED_command(SSD1306_DEACTIVATE_SCROLL);
 
-  OLED_command(SSD1306_DISPLAYON);//--turn on oled panel
+  OLED_command(SSD1306_DISPLAYALLON_RESUME);            //--turn on oled panel
+
+  // clear display and supply power
+  OLED_clearDisplay();
+  OLED_updateDisplay();
+  nrf_gpio_pin_set(GPIO_OLED_POWER);
 }
 
 
