@@ -84,7 +84,7 @@ int main(void)
     // led_on();
 
     OLED_clearDisplay();
-    OLED_drawRect(0, 0, SSD1306_LCDWIDTH-1, SSD1306_LCDHEIGHT-1, WHITE);
+    OLED_drawRect(0, 0, SSD1306_LCDWIDTH, SSD1306_LCDHEIGHT, WHITE);
     OLED_setTextSize(1);
     OLED_setTextColor(WHITE);
     OLED_setCursor(2, 2);
