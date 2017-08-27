@@ -65,21 +65,6 @@ bool OLED_wrap = true;
 GFXfont *OLED_gfxFont = NULL;
 
 
-/*
-OLED_Adafruit_GFX(int16_t w, int16_t h):
-WIDTH(w), HEIGHT(h)
-{
-    // _width    = WIDTH;
-    // _height   = HEIGHT;
-    // rotation  = 0;
-    cursor_y  = cursor_x    = 0;
-    // textsize  = 1;
-    textcolor = textbgcolor = 0xFFFF;
-    wrap      = true;
-    gfxFont   = NULL;
-}
-*/
-
 // Bresenham's algorithm - thx wikpedia
 void OLED_writeLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
         uint16_t color) {
@@ -590,6 +575,14 @@ void OLED_drawChar(int16_t x, int16_t y, unsigned char c,
         }
 
     } // End classic vs custom font
+}
+
+void OLED_writechars(char *txt) {
+    int i = 0;
+    while(txt[i]) {
+        OLED_write(txt[i]);
+        i++;
+    }
 }
 
 void OLED_write(uint8_t c) {

@@ -170,6 +170,12 @@ void OLED_init() {
   // enable power for the moment
   nrf_gpio_pin_set(GPIO_OLED_POWER);
 
+  // setup internal OLED variables
+  OLED_physWidth = SSD1306_LCDWIDTH;
+  OLED_curWidth  = SSD1306_LCDWIDTH;
+  OLED_physHeight = SSD1306_LCDHEIGHT;
+  OLED_curHeight = SSD1306_LCDHEIGHT;
+
   // Init sequence
   OLED_command(SSD1306_DISPLAYOFF);                    // 0xAE
   OLED_command(SSD1306_SETDISPLAYCLOCKDIV);            // 0xD5

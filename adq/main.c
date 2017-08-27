@@ -83,6 +83,12 @@ int main(void)
     advertising_start();
     // led_on();
 
+    OLED_clearDisplay();
+    OLED_drawRect(0, 0, SSD1306_LCDWIDTH-1, SSD1306_LCDHEIGHT-1, WHITE);
+    OLED_setTextSize(1);
+    OLED_setTextColor(WHITE);
+    OLED_setCursor(2, 2);
+    OLED_writechars("Hello world!\r\nLine 2");
     OLED_updateDisplay();
 
     // uint8_t buf[10];

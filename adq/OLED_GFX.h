@@ -65,6 +65,7 @@ extern void OLED_setTextWrap(bool w);
 extern void OLED_setFont(GFXfont *f);
 extern void OLED_getTextBounds(char *string, int16_t x, int16_t y, int16_t *x1, int16_t *y1, uint16_t *w, uint16_t *h);
 
+extern void OLED_writechars(char *txt);
 extern void OLED_write(uint8_t);
 
 extern void OLED_charBounds(char c, int16_t *x, int16_t *y, int16_t *minx, int16_t *miny, int16_t *maxx, int16_t *maxy);
