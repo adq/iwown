@@ -65,6 +65,18 @@ static void power_manage(void)
     APP_ERROR_CHECK(err_code);
 }
 
+static int circleon = 1;
+static void circle_toggle()
+{
+    if (circleon) {
+        OLED_fillCircle(100, 16, 10, WHITE);
+    } else {
+        OLED_fillCircle(100, 16, 10, BLACK);
+    }
+    OLED_updateDisplay();
+    circleon = !circleon;
+}
+
 int main(void)
 {
     motor_init();
@@ -125,6 +137,10 @@ int main(void)
     app_timer_start(watchdog_timer, APP_TIMER_TICKS(500, APP_TIMER_PRESCALER), NULL);
 
     led_on();
+
+    app_timer_id_t circle_timer;
+    app_timer_create(&circle_timer, APP_TIMER_MODE_REPEATED, circle_toggle);
+    app_timer_start(circle_timer, APP_TIMER_TICKS(500, APP_TIMER_PRESCALER), NULL);
 
     while (true)
     {
