@@ -30,6 +30,7 @@
 #include "twi_master.h"
 #include "simple_uart.h"
 #include "bootloader_types.h"
+#include "watchdog.h"
 
 
 // NOTE: get into DFU bootloader: NRF_POWER->GPREGRET == BOOTLOADER_DFU_START  then soft reset
@@ -79,6 +80,7 @@ int main(void)
     fontrom_init();
     accel_init();
     OLED_init();
+    watchdog_init();
 
     advertising_start();
     // led_on();
@@ -116,6 +118,11 @@ int main(void)
     fontrom_read_bytes(0, rxbuf, 10);
 */
 
+    simple_uart_putstring((uint8_t*) "RESTART\r\n");
+    watchdog_reload();
+    app_timer_id_t watchdog_timer;
+    app_timer_create(&watchdog_timer, APP_TIMER_MODE_REPEATED, watchdog_reload);
+    app_timer_start(watchdog_timer, APP_TIMER_TICKS(500, APP_TIMER_PRESCALER), NULL);
 
     led_on();
 
