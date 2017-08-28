@@ -63,7 +63,8 @@ eeprom.c \
 fontrom.c \
 accel.c \
 OLED_GFX.c \
-OLED_SSD1306.c
+OLED_SSD1306.c \
+watchdog.c
 
 #assembly files common to all targets
 ASM_SOURCE_FILES  = ../nRF51_SDK_7.2.0_cf547b5/components/toolchain/gcc/gcc_startup_nrf51.s
