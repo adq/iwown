@@ -256,7 +256,7 @@ void OLED_init() {
 
   OLED_command(SSD1306_DEACTIVATE_SCROLL);
 
-  OLED_command(SSD1306_DISPLAYALLON_RESUME);            //--turn on oled panel
+  OLED_command(SSD1306_DISPLAYON);            //--turn on oled panel
 
   // clear display and supply power
   OLED_clearDisplay();
