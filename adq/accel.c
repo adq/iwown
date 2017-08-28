@@ -21,19 +21,9 @@ void accel_init() {
     txbuf[1] = 0x08;
     twi_master_transfer(twi_accelerometer, I2C_ACCEL, txbuf, 2, true);
 
-    // enable FIFO, others the same
-    txbuf[0] = 0x24;
-    txbuf[1] = 0x40;
-    twi_master_transfer(twi_accelerometer, I2C_ACCEL, txbuf, 2, true);
-
     // disable interrupts
     txbuf[0] = 0x25;
     txbuf[1] = 0x00;
-    twi_master_transfer(twi_accelerometer, I2C_ACCEL, txbuf, 2, true);
-
-    // FIFO ctrl: stream mode, 25 records
-    txbuf[0] = 0x2E;
-    txbuf[1] = 0x99;
     twi_master_transfer(twi_accelerometer, I2C_ACCEL, txbuf, 2, true);
 }
 
@@ -45,12 +35,17 @@ void accel_poweroff() {
     twi_master_transfer(twi_accelerometer, I2C_ACCEL, txbuf, 2, true);
 }
 
-void accel_sethighres() {
+void accel_setfifohighres() {
     uint8_t txbuf[2];
 
     // enable XYZ + 50Hz mode
     txbuf[0] = 0x20;
     txbuf[1] = 0x47;
+    twi_master_transfer(twi_accelerometer, I2C_ACCEL, txbuf, 2, true);
+
+    // enable FIFO, others the same
+    txbuf[0] = 0x24;
+    txbuf[1] = 0x40;
     twi_master_transfer(twi_accelerometer, I2C_ACCEL, txbuf, 2, true);
 
     // FIFO ctrl: stream mode, 25 records
@@ -59,12 +54,17 @@ void accel_sethighres() {
     twi_master_transfer(twi_accelerometer, I2C_ACCEL, txbuf, 2, true);
 }
 
-void accel_setlowres() {
+void accel_setfifolowres() {
     uint8_t txbuf[2];
 
     // enable XYZ + 10Hz mode
     txbuf[0] = 0x20;
     txbuf[1] = 0x27;
+    twi_master_transfer(twi_accelerometer, I2C_ACCEL, txbuf, 2, true);
+
+    // enable FIFO, others the same
+    txbuf[0] = 0x24;
+    txbuf[1] = 0x40;
     twi_master_transfer(twi_accelerometer, I2C_ACCEL, txbuf, 2, true);
 
     // FIFO ctrl: stream mode, 25 records
