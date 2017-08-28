@@ -31,6 +31,7 @@
 #include "simple_uart.h"
 #include "bootloader_types.h"
 #include "watchdog.h"
+#include "touchpanel.h"
 
 
 // NOTE: get into DFU bootloader: NRF_POWER->GPREGRET == BOOTLOADER_DFU_START  then soft reset
