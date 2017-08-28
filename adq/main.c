@@ -89,6 +89,7 @@ int main(void)
     OLED_setTextColor(WHITE);
     OLED_setCursor(2, 2);
     OLED_writechars("Hello world!\r\nLine 2");
+    OLED_fillCircle(100, 16, 10, WHITE);
     OLED_updateDisplay();
 
     // uint8_t buf[10];
@@ -114,6 +115,7 @@ int main(void)
     uint8_t rxbuf[100];
     fontrom_read_bytes(0, rxbuf, 10);
 */
+
 
     led_on();
 
