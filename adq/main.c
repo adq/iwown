@@ -32,6 +32,7 @@
 #include "bootloader_types.h"
 #include "watchdog.h"
 #include "touchpanel.h"
+#include "power.h"
 
 
 // NOTE: get into DFU bootloader: NRF_POWER->GPREGRET == BOOTLOADER_DFU_START  then soft reset
@@ -94,6 +95,7 @@ int main(void)
     accel_init();
     OLED_init();
     watchdog_init();
+    power_init();
 
     advertising_start();
     // led_on();
