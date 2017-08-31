@@ -53,7 +53,7 @@ void ADC_IRQHandler(void)
     if (NRF_ADC->EVENTS_END != 0)
     {
         uint32_t     adc_result;
-        uint16_t     batt_lvl_in_milli_volts;
+        uint32_t     batt_lvl_in_milli_volts;
         uint8_t     percentage_batt_lvl;
         // uint32_t    err_code;
 
@@ -80,7 +80,7 @@ void ADC_IRQHandler(void)
         }
 
         char buf[100];
-        sprintf(buf, "%i %i %i\r\n", batt_lvl_in_milli_volts, (unsigned int) adc_result, percentage_batt_lvl);
+        sprintf(buf, "%i %i %i\r\n", (unsigned int) batt_lvl_in_milli_volts, (unsigned int) adc_result, percentage_batt_lvl);
         simple_uart_putstring((uint8_t*) buf);
         // percentage_batt_lvl     = battery_level_in_percent(batt_lvl_in_milli_volts);
 
