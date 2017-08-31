@@ -74,9 +74,10 @@ void ADC_IRQHandler(void)
             battery_percent = 40 - ((2 * (3700 - batt_lvl_in_milli_volts)) / 15);
         } else if (batt_lvl_in_milli_volts >= 3370) {
             battery_percent = 20 - ((3550 - batt_lvl_in_milli_volts) / 10);
+        } else if (batt_lvl_in_milli_volts > 3300) {
+            battery_percent = 1;
         } else {
-            // FIXME
-            battery_percent = batt_lvl_in_milli_volts > 3300;
+            battery_percent = 0;
         }
 
         char buf[100];
