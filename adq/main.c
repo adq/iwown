@@ -96,6 +96,7 @@ int main(void)
     OLED_init();
     watchdog_init();
     power_init();
+    touchpanel_init();
 
     advertising_start();
     // led_on();
@@ -144,6 +145,14 @@ int main(void)
     app_timer_id_t circle_timer;
     app_timer_create(&circle_timer, APP_TIMER_MODE_REPEATED, circle_toggle);
     app_timer_start(circle_timer, APP_TIMER_TICKS(500, APP_TIMER_PRESCALER), NULL);
+
+    simple_uart_putstring((uint8_t*) "RESTART\r\n");
+
+    char buf[100];
+    sprintf(buf, "STATUS %i\r\n", touchpanel_read());
+    simple_uart_putstring((uint8_t*) buf);
+
+    power_dosample();
 
     while (true)
     {

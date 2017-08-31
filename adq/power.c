@@ -3,17 +3,13 @@
 #include "i5plus.h"
 #include "power.h"
 #include "softdevice_handler.h"
+#include "simple_uart.h"
+#include <stdio.h>
 
-/**@brief Macro to convert the result of ADC conversion in millivolts.
- *
- * @param[in]  ADC_VALUE   ADC result.
- * @retval     Result converted to millivolts.
- */
- #define ADC_RESULT_IN_MILLI_VOLTS(ADC_VALUE) ((((ADC_VALUE) * 1200) >> 10) * 12000)
+
+uint32_t battery_percent;
 
 void power_init() {
-    uint32_t err_code;
-
     NRF_GPIO->PIN_CNF[GPIO_USB_POWER] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos) \
                                        |(GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)    \
                                        |(GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)  \
@@ -22,6 +18,8 @@ void power_init() {
 }
 
 void power_dosample() {
+    uint32_t err_code;
+
     // Configure ADC
     NRF_ADC->INTENSET   = ADC_INTENSET_END_Msk;
     NRF_ADC->CONFIG     = (ADC_CONFIG_RES_10bit                       << ADC_CONFIG_RES_Pos)     |
@@ -47,7 +45,7 @@ void power_dosample() {
 }
 
 uint8_t power_readusbstatus() {
-    return ((NRF_GPIO->IN & GPIO_USB_POWER) ? 1 : 0);
+    return ((NRF_GPIO->IN & (1<<GPIO_USB_POWER)) ? 1 : 0);
 }
 
 void ADC_IRQHandler(void)
@@ -56,15 +54,19 @@ void ADC_IRQHandler(void)
     {
         uint8_t     adc_result;
         uint16_t    batt_lvl_in_milli_volts;
-        uint8_t     percentage_batt_lvl;
-        uint32_t    err_code;
+        // uint8_t     percentage_batt_lvl;
+        // uint32_t    err_code;
 
         NRF_ADC->EVENTS_END     = 0;
         adc_result              = NRF_ADC->RESULT;
         NRF_ADC->TASKS_STOP     = 1;
 
-        batt_lvl_in_milli_volts = ADC_RESULT_IN_MILLI_VOLTS(adc_result);
-        percentage_batt_lvl     = battery_level_in_percent(batt_lvl_in_milli_volts);
+        batt_lvl_in_milli_volts = (((adc_result * 1200) / 1024) * 12000) / 2000;
+
+        char buf[100];
+        sprintf(buf, "%i %i\r\n", batt_lvl_in_milli_volts, adc_result);
+        simple_uart_putstring((uint8_t*) buf);
+        // percentage_batt_lvl     = battery_level_in_percent(batt_lvl_in_milli_volts);
 
         /*
         err_code = ble_bas_battery_level_update(&m_bas, percentage_batt_lvl);

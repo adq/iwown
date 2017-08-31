@@ -17,6 +17,6 @@ void touchpanel_init() {
 }
 
 uint8_t touchpanel_read() {
-    return ((NRF_GPIO->IN & GPIO_TOUCH0) ? 1 : 0) |
-           ((NRF_GPIO->IN & GPIO_TOUCH1) ? 2 : 0);
+    return ((NRF_GPIO->IN & (1<<GPIO_TOUCH0)) ? 0 : 1) |
+           ((NRF_GPIO->IN & (1<<GPIO_TOUCH1)) ? 0 : 2);
 }
