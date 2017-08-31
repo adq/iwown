@@ -13,7 +13,7 @@
 #include "nrf_gpio.h"
 
 static uint16_t                         m_conn_handle = BLE_CONN_HANDLE_INVALID;    /**< Handle of the current connection. */
-static ble_bas_t                        m_bas;                                     /**< Structure used to identify the battery service. */
+ble_bas_t                        m_bas;                                     /**< Structure used to identify the battery service. */
 static ble_dfu_t            m_dfu;                                                                   /**< Structure used to identify the Device Firmware Update service. */
 
 

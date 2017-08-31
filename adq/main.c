@@ -97,9 +97,7 @@ int main(void)
     watchdog_init();
     power_init();
     touchpanel_init();
-
     advertising_start();
-    // led_on();
 
     OLED_clearDisplay();
     OLED_drawRect(0, 0, SSD1306_LCDWIDTH, SSD1306_LCDHEIGHT, WHITE);
@@ -151,8 +149,6 @@ int main(void)
     char buf[100];
     sprintf(buf, "STATUS %i\r\n", touchpanel_read());
     simple_uart_putstring((uint8_t*) buf);
-
-    power_dosample();
 
     while (true)
     {

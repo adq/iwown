@@ -1,13 +1,17 @@
+#include <stdio.h>
 #include "nrf_gpio.h"
 #include "nrf.h"
 #include "i5plus.h"
 #include "power.h"
 #include "softdevice_handler.h"
 #include "simple_uart.h"
-#include <stdio.h>
+#include "ble.h"
+#include "app_timer.h"
 
 
-uint32_t battery_percent;
+uint8_t battery_percent;
+static app_timer_id_t battery_timer;
+static void power_readbatterylevel();
 
 void power_init() {
     NRF_GPIO->PIN_CNF[GPIO_USB_POWER] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos) \
@@ -15,9 +19,13 @@ void power_init() {
                                        |(GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)  \
                                        |(GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos) \
                                        |(GPIO_PIN_CNF_DIR_Input << GPIO_PIN_CNF_DIR_Pos);
+
+    power_readbatterylevel();
+    app_timer_create(&battery_timer, APP_TIMER_MODE_REPEATED, power_readbatterylevel);
+    app_timer_start(battery_timer, APP_TIMER_TICKS(10000, APP_TIMER_PRESCALER), NULL);
 }
 
-void power_dosample() {
+static void power_readbatterylevel() {
     uint32_t err_code;
 
     // Configure ADC
@@ -52,6 +60,7 @@ void ADC_IRQHandler(void)
 {
     if (NRF_ADC->EVENTS_END != 0)
     {
+        uint32_t    err_code;
         uint32_t     adc_result;
         uint32_t     batt_lvl_in_milli_volts;
         uint8_t     percentage_batt_lvl;
@@ -80,12 +89,6 @@ void ADC_IRQHandler(void)
             battery_percent = 0;
         }
 
-        char buf[100];
-        sprintf(buf, "%i %i %i\r\n", (unsigned int) batt_lvl_in_milli_volts, (unsigned int) adc_result, percentage_batt_lvl);
-        simple_uart_putstring((uint8_t*) buf);
-        // percentage_batt_lvl     = battery_level_in_percent(batt_lvl_in_milli_volts);
-
-        /*
         err_code = ble_bas_battery_level_update(&m_bas, percentage_batt_lvl);
         if (
             (err_code != NRF_SUCCESS)
@@ -99,6 +102,5 @@ void ADC_IRQHandler(void)
         {
             APP_ERROR_HANDLER(err_code);
         }
-        */
     }
 }
