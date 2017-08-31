@@ -52,9 +52,9 @@ void ADC_IRQHandler(void)
 {
     if (NRF_ADC->EVENTS_END != 0)
     {
-        uint8_t     adc_result;
-        uint16_t    batt_lvl_in_milli_volts;
-        // uint8_t     percentage_batt_lvl;
+        uint32_t     adc_result;
+        uint16_t     batt_lvl_in_milli_volts;
+        uint8_t     percentage_batt_lvl;
         // uint32_t    err_code;
 
         NRF_ADC->EVENTS_END     = 0;
@@ -62,9 +62,25 @@ void ADC_IRQHandler(void)
         NRF_ADC->TASKS_STOP     = 1;
 
         batt_lvl_in_milli_volts = (((adc_result * 1200) / 1024) * 12000) / 2000;
+        if (batt_lvl_in_milli_volts >= 4000) {
+            battery_percent = 100;
+        } else if (batt_lvl_in_milli_volts >= 3900) {
+            battery_percent = 100 - ((4000 - batt_lvl_in_milli_volts) / 5);
+        } else if (batt_lvl_in_milli_volts >= 3800) {
+            battery_percent = 80 - ((3900 - batt_lvl_in_milli_volts) / 5);
+        } else if (batt_lvl_in_milli_volts >= 3700) {
+            battery_percent = 60 - ((3800 - batt_lvl_in_milli_volts) / 5);
+        } else if (batt_lvl_in_milli_volts >= 3550) {
+            battery_percent = 40 - ((2 * (3700 - batt_lvl_in_milli_volts)) / 15);
+        } else if (batt_lvl_in_milli_volts >= 3370) {
+            battery_percent = 20 - ((3550 - batt_lvl_in_milli_volts) / 10);
+        } else {
+            // FIXME
+            battery_percent = batt_lvl_in_milli_volts > 3300;
+        }
 
         char buf[100];
-        sprintf(buf, "%i %i\r\n", batt_lvl_in_milli_volts, adc_result);
+        sprintf(buf, "%i %i %i\r\n", batt_lvl_in_milli_volts, (unsigned int) adc_result, percentage_batt_lvl);
         simple_uart_putstring((uint8_t*) buf);
         // percentage_batt_lvl     = battery_level_in_percent(batt_lvl_in_milli_volts);
 
