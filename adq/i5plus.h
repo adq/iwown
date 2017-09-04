@@ -17,8 +17,8 @@
 #define GPIO_FONTROM_SCLK 18
 #define GPIO_FONTROM_MOSI 17
 
-#define GPIO_ACCEL_SDA 13
-#define GPIO_ACCEL_SCL 12
+#define GPIO_ACCEL_SDA 12
+#define GPIO_ACCEL_SCL 13
 
 #define GPIO_UART_RX 11
 #define GPIO_UART_TX 10
