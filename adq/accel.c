@@ -2,7 +2,8 @@
 #include "i5plus.h"
 #include "twi_master.h"
 #include "accel.h"
-
+#include "simple_uart.h"
+#include <stdio.h>
 
 static twi_master_config_t twi_accelerometer = {TWI_Pin_SCL:GPIO_ACCEL_SCL, TWI_Pin_SDA:GPIO_ACCEL_SDA};
 
@@ -83,14 +84,14 @@ int accel_readsamplecount() {
     return txbuf[0] & 0x1f;
 }
 
-void accel_readsample(uint16_t* x, uint16_t* y, uint16_t* z) {
+void accel_readsample(int16_t* x, int16_t* y, int16_t* z) {
     uint8_t txbuf[6];
 
     txbuf[0] = 0xA8; // top bit set => multibyte
     twi_master_transfer(twi_accelerometer, I2C_ACCEL, txbuf, 1, false);
     twi_master_transfer(twi_accelerometer, I2C_ACCEL | TWI_READ_BIT, txbuf, 6, true);
 
-    *x = *((uint16_t*) (txbuf + 0));
-    *y = *((uint16_t*) (txbuf + 2));
-    *z = *((uint16_t*) (txbuf + 4));
+    *x = *((int16_t*) (txbuf + 0));
+    *y = *((int16_t*) (txbuf + 2));
+    *z = *((int16_t*) (txbuf + 4));
 }
