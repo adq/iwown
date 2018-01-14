@@ -79,6 +79,18 @@ static void circle_toggle()
     circleon = !circleon;
 }
 
+static void accel_thing()
+{
+    int16_t x,y,z;
+
+    accel_readsample(&x, &y, &z);
+
+    char buf[100];
+    sprintf(buf, "%i %i %i\r\n", x, y, z);
+
+    simple_uart_putstring((uint8_t*) buf);
+}
+
 int main(void)
 {
     motor_init();
@@ -140,9 +152,13 @@ int main(void)
 
     led_on();
 
-    app_timer_id_t circle_timer;
-    app_timer_create(&circle_timer, APP_TIMER_MODE_REPEATED, circle_toggle);
-    app_timer_start(circle_timer, APP_TIMER_TICKS(500, APP_TIMER_PRESCALER), NULL);
+    // app_timer_id_t circle_timer;
+    // app_timer_create(&circle_timer, APP_TIMER_MODE_REPEATED, circle_toggle);
+    // app_timer_start(circle_timer, APP_TIMER_TICKS(500, APP_TIMER_PRESCALER), NULL);
+
+    app_timer_id_t accel_timer;
+    app_timer_create(&accel_timer, APP_TIMER_MODE_REPEATED, accel_thing);
+    app_timer_start(accel_timer, APP_TIMER_TICKS(500, APP_TIMER_PRESCALER), NULL);
 
     simple_uart_putstring((uint8_t*) "RESTART\r\n");
 
